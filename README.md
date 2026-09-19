@@ -40,15 +40,20 @@ A dedicated, mobile-first weight and biometric tracking web app and PWA built sp
 - **Floating Island Navigation**: Ergonomic bottom tab bar with iOS safe-area support (`safe-bottom`) and a spring "+ Log" action.
 - **Installable**: "Add to Home Screen" on iOS Safari and Android Chrome for a native app feel.
 
-### 5. Zero-Cost Offline-First Storage & Cloud Backup
-- Works immediately in any browser with reactive LocalStorage and rich pre-seeded Elemen 2 history.
-- **1-Click JSON Backup & Restore**: Export all members and logs into a timestamped `.json` file anytime.
+### 5. Supabase Cloud Persistence & Multi-Device Realtime Sync
+- **Centralized PostgreSQL Cloud**: Powered by free-tier [Supabase](https://supabase.com).
+- **Real-Time WebSockets**: Any weigh-in logged by any member immediately reflects across all active phones without page refreshing.
+- **Offline-First Hybrid Cache**: Works seamlessly offline; instantly loads from local cache and hydrates from the cloud in the background.
+- **1-Click JSON Backup & Restore**: Upload your `.json` backup file (like `data/cohort-backup-with-heights.json`) to populate both local storage and Supabase cloud in one go.
+- **Ready-to-Run Schema**: Included `supabase/schema.sql` sets up tables, indexes, RLS policies, and realtime publication in 1 click.
 
 ---
 
 ## Tech Stack
 
 - **Framework**: [Next.js 14](https://nextjs.org/) (App Router, React 18)
+- **Database & Realtime**: [Supabase](https://supabase.com/) (PostgreSQL + WebSockets)
+- **Client Library**: `@supabase/supabase-js`
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **Icons**: [@phosphor-icons/react](https://phosphoricons.com/)
@@ -57,29 +62,38 @@ A dedicated, mobile-first weight and biometric tracking web app and PWA built sp
 
 ---
 
-## Free Deployment on Vercel (Step-by-Step)
+## Free Deployment on Vercel & Supabase (Step-by-Step)
 
-### Option A: Via GitHub & Vercel Dashboard (Recommended)
+### Step 1: Create Free Supabase Database
+1. Go to [supabase.com](https://supabase.com/) and create a new free project (e.g. `elemen2-tracker`).
+2. In your Supabase project dashboard, open the **SQL Editor** (left sidebar).
+3. Open `supabase/schema.sql` from this repository, paste the entire contents into the SQL Editor, and click **Run**.
+4. Go to **Project Settings** (gear icon) $\rightarrow$ **API**:
+   - Copy your **Project URL**
+   - Copy your **anon / public key**
+
+### Step 2: Deploy on Vercel (Free)
 
 1. **Push to your GitHub repository**:
    ```bash
    git add .
-   git commit -m "feat: complete Elemen 2 cohort weight tracker"
+   git commit -m "feat: integrate Supabase cloud database and realtime sync"
    git branch -M main
    # Add your remote repository:
    git remote add origin https://github.com/YOUR_USERNAME/elemen2-tracker.git
    git push -u origin main
    ```
 
-2. **Deploy on Vercel (Free)**:
-   - Go to [vercel.com](https://vercel.com/) and log in with your GitHub account.
-   - Click **"Add New..."** $\rightarrow$ **"Project"**.
-   - Select your `elemen2-tracker` repository.
-   - *(Optional)* In **Environment Variables**, add:
-     - `NEXT_PUBLIC_COHORT_PASSWORD`: Your secret global cohort password (e.g. `cohort2025`). If not set, defaults to `elemen2`.
-     - `NEXT_PUBLIC_MAINTAINER_PASSWORD`: Your custom maintainer PIN (e.g. `8899`). If not set, defaults to `1234`.
+2. **Deploy on Vercel**:
+   - Go to [vercel.com](https://vercel.com/) and log in with GitHub.
+   - Click **"Add New..."** $\rightarrow$ **"Project"** and select `elemen2-tracker`.
+   - In **Environment Variables**, add:
+     - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL (from Step 1)
+     - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anon public key (from Step 1)
+     - `NEXT_PUBLIC_COHORT_PASSWORD`: Secret global password (defaults to `elemen2` if omitted)
+     - `NEXT_PUBLIC_MAINTAINER_PASSWORD`: Maintainer PIN for writes (defaults to `1234` if omitted)
    - Click **"Deploy"**.
-   - Your app will be live on a free `*.vercel.app` domain in less than 1 minute!
+   - Your app is now live with real-time multi-device cloud sync!
 
 ---
 
