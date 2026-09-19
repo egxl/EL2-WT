@@ -9,6 +9,9 @@ A dedicated, mobile-first weight and biometric tracking web app and PWA built sp
 ![PWA Ready](https://img.shields.io/badge/PWA-Installable-emerald)
 ![Free Deployment](https://img.shields.io/badge/Vercel-Free%20Tier-success)
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fegxl%2FEL2-WT)
+
+
 ---
 
 ## Key Features
