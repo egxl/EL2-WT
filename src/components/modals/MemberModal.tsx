@@ -1,0 +1,294 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { X, UserPlus, CheckCircle, Trash, Heartbeat } from "@phosphor-icons/react";
+import { Member } from "@/types";
+import { saveMember, deleteMember } from "@/lib/storage";
+import { calculateBmi, getHealthyWeightRange, getBmiCategoryDetails } from "@/lib/biometrics";
+
+interface MemberModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  memberToEdit?: Member | null;
+  onSaved?: () => void;
+}
+
+const COLOR_PALETTE = [
+  "#F59E0B", // Amber
+  "#10B981", // Emerald
+  "#06B6D4", // Cyan
+  "#8B5CF6", // Violet
+  "#EC4899", // Pink
+  "#3B82F6", // Blue
+  "#F97316", // Orange
+  "#14B8A6", // Teal
+];
+
+export function MemberModal({
+  isOpen,
+  onClose,
+  memberToEdit,
+  onSaved,
+}: MemberModalProps) {
+  const [name, setName] = useState("");
+  const [avatar, setAvatar] = useState("");
+  const [color, setColor] = useState(COLOR_PALETTE[0]);
+  const [heightCm, setHeightCm] = useState<number>(175);
+  const [startingWeightKg, setStartingWeightKg] = useState<number>(80.0);
+  const [targetWeightKg, setTargetWeightKg] = useState<number>(70.0);
+  const [notes, setNotes] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  useEffect(() => {
+    if (memberToEdit) {
+      setName(memberToEdit.name);
+      setAvatar(memberToEdit.avatar);
+      setColor(memberToEdit.color || COLOR_PALETTE[0]);
+      setHeightCm(memberToEdit.heightCm);
+      setStartingWeightKg(memberToEdit.startingWeightKg);
+      setTargetWeightKg(memberToEdit.targetWeightKg);
+      setNotes(memberToEdit.notes || "");
+    } else {
+      setName("");
+      setAvatar("");
+      setColor(COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)]);
+      setHeightCm(175);
+      setStartingWeightKg(80.0);
+      setTargetWeightKg(70.0);
+      setNotes("");
+    }
+    setShowDeleteConfirm(false);
+  }, [memberToEdit, isOpen]);
+
+  if (!isOpen) return null;
+
+  const healthyRange = getHealthyWeightRange(heightCm);
+  const startBmi = calculateBmi(startingWeightKg, heightCm);
+  const targetBmi = calculateBmi(targetWeightKg, heightCm);
+  const startBmiInfo = getBmiCategoryDetails(startBmi);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || heightCm <= 0 || startingWeightKg <= 0 || targetWeightKg <= 0) return;
+
+    const member: Member = {
+      id: memberToEdit ? memberToEdit.id : `mem-${Date.now()}`,
+      name: name.trim(),
+      avatar: (avatar.trim() || name.trim()[0]).toUpperCase(),
+      color,
+      heightCm: Number(heightCm),
+      startingWeightKg: Number(startingWeightKg),
+      targetWeightKg: Number(targetWeightKg),
+      joinDate: memberToEdit ? memberToEdit.joinDate : new Date().toISOString().split("T")[0],
+      notes: notes.trim() || undefined,
+    };
+
+    saveMember(member);
+    if (onSaved) onSaved();
+    onClose();
+  };
+
+  const handleDelete = () => {
+    if (memberToEdit) {
+      deleteMember(memberToEdit.id);
+      if (onSaved) onSaved();
+      onClose();
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md">
+      <div 
+        className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-[#0D1117] border border-white/10 p-5 shadow-2xl relative animate-in slide-in-from-bottom-6 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between pb-3 border-b border-white/10">
+          <div>
+            <h2 className="text-lg font-bold text-white tracking-tight">
+              {memberToEdit ? `Edit ${memberToEdit.name}` : "Add New Elemen 2 Member"}
+            </h2>
+            <p className="text-xs text-slate-400">Height is mandatory for deep BMI calculations</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+          >
+            <X size={16} weight="bold" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+          {/* Name & Avatar Initial */}
+          <div className="grid grid-cols-4 gap-3">
+            <div className="col-span-3">
+              <label className="text-xs font-semibold text-slate-300 mb-1.5 block">Full Name</label>
+              <input
+                type="text"
+                placeholder="e.g. Budi"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (!avatar && e.target.value.trim().length > 0) {
+                    setAvatar(e.target.value.trim()[0].toUpperCase());
+                  }
+                }}
+                required
+                className="w-full h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-amber-500"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-slate-300 mb-1.5 block">Initial</label>
+              <input
+                type="text"
+                maxLength={2}
+                placeholder="B"
+                value={avatar}
+                onChange={(e) => setAvatar(e.target.value.toUpperCase())}
+                className="w-full h-11 px-3 text-center rounded-xl bg-white/5 border border-white/10 text-white font-bold text-sm focus:outline-none focus:border-amber-500"
+              />
+            </div>
+          </div>
+
+          {/* Color Tag Picker */}
+          <div>
+            <label className="text-xs font-semibold text-slate-300 mb-1.5 block">Theme Accent</label>
+            <div className="flex gap-2.5">
+              {COLOR_PALETTE.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setColor(c)}
+                  className={`w-7 h-7 rounded-full transition-transform ${
+                    color === c ? "scale-125 ring-2 ring-white" : "opacity-70 hover:opacity-100"
+                  }`}
+                  style={{ backgroundColor: c }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Mandatory Height in cm */}
+          <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-bold text-cyan-300 flex items-center gap-1.5">
+                <Heartbeat size={15} weight="fill" />
+                <span>Mandatory Height (cm)</span>
+              </label>
+              <span className="text-[11px] text-cyan-200/80 font-mono">Required for BMI</span>
+            </div>
+            <input
+              type="number"
+              step="1"
+              min="100"
+              max="250"
+              value={heightCm}
+              onChange={(e) => setHeightCm(Number(e.target.value))}
+              required
+              className="w-full h-11 px-3 rounded-xl bg-slate-950 border border-cyan-500/40 text-white text-base font-bold tabular-nums focus:outline-none focus:border-cyan-400"
+            />
+            {heightCm > 0 && (
+              <p className="text-[11px] text-cyan-300/90 mt-2">
+                Healthy weight span (BMI 18.5 - 24.9): <strong>{healthyRange.minKg} kg</strong> – <strong>{healthyRange.maxKg} kg</strong>
+              </p>
+            )}
+          </div>
+
+          {/* Starting & Target Weights */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-semibold text-slate-300 mb-1.5 block">Starting Weight (kg)</label>
+              <input
+                type="number"
+                step="0.1"
+                min="30"
+                max="300"
+                value={startingWeightKg}
+                onChange={(e) => setStartingWeightKg(Number(e.target.value))}
+                required
+                className="w-full h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-semibold tabular-nums focus:outline-none focus:border-amber-500"
+              />
+              <span className="text-[11px] text-slate-400 mt-1 block">
+                Start BMI: <strong className={startBmiInfo.badgeText}>{startBmi}</strong>
+              </span>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-slate-300 mb-1.5 block">Target Weight (kg)</label>
+              <input
+                type="number"
+                step="0.1"
+                min="30"
+                max="300"
+                value={targetWeightKg}
+                onChange={(e) => setTargetWeightKg(Number(e.target.value))}
+                required
+                className="w-full h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-semibold tabular-nums focus:outline-none focus:border-amber-500"
+              />
+              <span className="text-[11px] text-slate-400 mt-1 block">
+                Target BMI: <strong className="text-emerald-400">{targetBmi}</strong>
+              </span>
+            </div>
+          </div>
+
+          {/* Strategy / Note */}
+          <div>
+            <label className="text-xs font-semibold text-slate-300 mb-1.5 block">Goals / Notes</label>
+            <input
+              type="text"
+              placeholder="e.g. Running 3x a week, gym focus, diet plan"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="w-full h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder:text-slate-400 focus:outline-none focus:border-amber-500"
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="pt-2 space-y-2">
+            <button
+              type="submit"
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-sm shadow-lg shadow-amber-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+            >
+              <CheckCircle size={18} weight="bold" />
+              <span>{memberToEdit ? "Save Changes" : "Add to Elemen 2"}</span>
+            </button>
+
+            {memberToEdit && (
+              <>
+                {!showDeleteConfirm ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="w-full py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    <Trash size={14} />
+                    <span>Delete Member</span>
+                  </button>
+                ) : (
+                  <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/30 text-center">
+                    <p className="text-xs text-rose-200 mb-2">Are you sure? This deletes member and all their logs.</p>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={handleDelete}
+                        className="flex-1 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold"
+                      >
+                        Yes, Delete
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowDeleteConfirm(false)}
+                        className="flex-1 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-slate-300 text-xs"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
