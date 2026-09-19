@@ -41,7 +41,12 @@ export function MemberCard({ insight, unit, onQuickLog }: MemberCardProps) {
                 )}
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
-                <span>Height: <strong className="text-slate-300 font-semibold">{member.heightCm} cm</strong></span>
+                <span>
+                  Height:{" "}
+                  <strong className="text-slate-300 font-semibold">
+                    {member.heightCm > 0 ? `${member.heightCm} cm` : "Pending"}
+                  </strong>
+                </span>
               </div>
             </div>
           </Link>
@@ -73,7 +78,7 @@ export function MemberCard({ insight, unit, onQuickLog }: MemberCardProps) {
           <div>
             <span className="text-[10px] text-slate-400 font-medium block">Target</span>
             <span className="text-xs font-semibold text-slate-300 tabular-nums">
-              {formatWeight(targetWeightKg, unit)}
+              {targetWeightKg > 0 && targetWeightKg !== startingWeightKg ? formatWeight(targetWeightKg, unit) : "TBD"}
             </span>
           </div>
         </div>
@@ -98,7 +103,7 @@ export function MemberCard({ insight, unit, onQuickLog }: MemberCardProps) {
 
           {/* BMI Pill */}
           <span className={`px-2 py-0.5 rounded-full border text-[11px] font-bold ${bmiInfo.badgeBg} ${bmiInfo.badgeText}`}>
-            BMI {currentBmi} ({bmiInfo.category})
+            {currentBmi > 0 ? `BMI ${currentBmi} (${bmiInfo.category})` : "Pending Height"}
           </span>
         </div>
 
@@ -106,12 +111,14 @@ export function MemberCard({ insight, unit, onQuickLog }: MemberCardProps) {
         <div className="space-y-1">
           <div className="flex justify-between text-[11px] text-slate-400">
             <span>Goal Journey</span>
-            <span className="text-slate-300 font-semibold">{percentToGoal}%</span>
+            <span className="text-slate-300 font-semibold">
+              {targetWeightKg > 0 && targetWeightKg !== startingWeightKg ? `${percentToGoal}%` : "Target unset"}
+            </span>
           </div>
           <div className="h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
             <div
               className="h-full rounded-full bg-gradient-to-r from-amber-500 to-emerald-400 transition-all duration-500"
-              style={{ width: `${Math.min(100, Math.max(0, percentToGoal))}%` }}
+              style={{ width: `${targetWeightKg > 0 && targetWeightKg !== startingWeightKg ? Math.min(100, Math.max(0, percentToGoal)) : 0}%` }}
             />
           </div>
         </div>

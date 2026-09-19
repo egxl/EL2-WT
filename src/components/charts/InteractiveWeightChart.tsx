@@ -250,9 +250,11 @@ export function InteractiveWeightChart({
             )}
           </div>
           <div className="text-right">
-            <span className="text-[11px] font-bold text-cyan-400 block">
-              BMI {calculateBmi(activePoint.log.weightKg, heightCm)}
-            </span>
+            {heightCm > 0 && (
+              <span className="text-[11px] font-bold text-cyan-400 block">
+                BMI {calculateBmi(activePoint.log.weightKg, heightCm)}
+              </span>
+            )}
             <button
               onClick={() => setActivePoint(null)}
               className="text-[10px] text-slate-400 hover:text-white mt-0.5"

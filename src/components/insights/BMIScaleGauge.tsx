@@ -9,6 +9,20 @@ interface BMIScaleGaugeProps {
 }
 
 export function BMIScaleGauge({ bmi, showLabels = true }: BMIScaleGaugeProps) {
+  if (bmi <= 0) {
+    return (
+      <div className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-center space-y-1.5">
+        <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-slate-300">
+          <span className="w-2 h-2 rounded-full bg-slate-500" />
+          <span>BMI Spectrum: Height Measurement Needed</span>
+        </div>
+        <p className="text-[11px] text-slate-400">
+          Once height is recorded via Maintainer mode, this gauge will automatically map the member&apos;s position across WHO health zones.
+        </p>
+      </div>
+    );
+  }
+
   const details = getBmiCategoryDetails(bmi);
 
   // Map BMI value to 0-100% position on the gauge

@@ -78,6 +78,26 @@ export default function SettingsPage() {
     }
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        setImportJsonText(content);
+        const res = importData(content);
+        if (res.success) {
+          setImportStatus({ success: true, message: `Data restored successfully from ${file.name}!` });
+          setShowImportBox(false);
+        } else {
+          setImportStatus({ success: false, message: res.error || "Invalid JSON in file" });
+        }
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const handleReset = () => {
     resetToDemoData();
     setResetConfirm(false);
@@ -257,7 +277,22 @@ export default function SettingsPage() {
             </div>
 
             {showImportBox && (
-              <div className="space-y-2 pt-2 border-t border-white/5 animate-in fade-in">
+              <div className="space-y-3 pt-2 border-t border-white/5 animate-in fade-in">
+                {/* File picker option */}
+                <div className="flex items-center gap-2">
+                  <label className="cursor-pointer px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold flex items-center gap-2 transition-all">
+                    <UploadSimple size={15} />
+                    <span>Upload JSON File</span>
+                    <input
+                      type="file"
+                      accept=".json"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                  </label>
+                  <span className="text-[11px] text-slate-500">or paste JSON below</span>
+                </div>
+
                 <textarea
                   rows={4}
                   placeholder="Paste backup JSON content here..."

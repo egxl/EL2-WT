@@ -201,10 +201,10 @@ export function LogWeightModal({
             {activeMember && (
               <div className="flex flex-wrap items-center justify-center gap-2 pt-2 border-t border-white/5 text-[11px]">
                 <span className={`px-2 py-0.5 rounded-full border ${bmiInfo.badgeBg} ${bmiInfo.badgeText} font-semibold`}>
-                  BMI {previewBmi} ({bmiInfo.category})
+                  {previewBmi > 0 ? `BMI ${previewBmi} (${bmiInfo.category})` : "Pending Height"}
                 </span>
                 <span className="text-slate-400">
-                  Height: <strong className="text-slate-200">{activeMember.heightCm} cm</strong>
+                  Height: <strong className="text-slate-200">{activeMember.heightCm > 0 ? `${activeMember.heightCm} cm` : "Pending"}</strong>
                 </span>
                 <span className={deltaFromStart >= 0 ? "text-emerald-400 font-semibold" : "text-rose-400 font-semibold"}>
                   {deltaFromStart >= 0 ? `-${deltaFromStart.toFixed(1)} kg lost` : `+${Math.abs(deltaFromStart).toFixed(1)} kg`}

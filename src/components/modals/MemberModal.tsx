@@ -33,9 +33,9 @@ export function MemberModal({
   const [name, setName] = useState("");
   const [avatar, setAvatar] = useState("");
   const [color, setColor] = useState(COLOR_PALETTE[0]);
-  const [heightCm, setHeightCm] = useState<number>(175);
-  const [startingWeightKg, setStartingWeightKg] = useState<number>(80.0);
-  const [targetWeightKg, setTargetWeightKg] = useState<number>(70.0);
+  const [heightCm, setHeightCm] = useState<number | string>("");
+  const [startingWeightKg, setStartingWeightKg] = useState<number | string>(80.0);
+  const [targetWeightKg, setTargetWeightKg] = useState<number | string>(70.0);
   const [notes, setNotes] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -44,7 +44,7 @@ export function MemberModal({
       setName(memberToEdit.name);
       setAvatar(memberToEdit.avatar);
       setColor(memberToEdit.color || COLOR_PALETTE[0]);
-      setHeightCm(memberToEdit.heightCm);
+      setHeightCm(memberToEdit.heightCm > 0 ? memberToEdit.heightCm : "");
       setStartingWeightKg(memberToEdit.startingWeightKg);
       setTargetWeightKg(memberToEdit.targetWeightKg);
       setNotes(memberToEdit.notes || "");
@@ -52,7 +52,7 @@ export function MemberModal({
       setName("");
       setAvatar("");
       setColor(COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)]);
-      setHeightCm(175);
+      setHeightCm("");
       setStartingWeightKg(80.0);
       setTargetWeightKg(70.0);
       setNotes("");
@@ -62,23 +62,27 @@ export function MemberModal({
 
   if (!isOpen) return null;
 
-  const healthyRange = getHealthyWeightRange(heightCm);
-  const startBmi = calculateBmi(startingWeightKg, heightCm);
-  const targetBmi = calculateBmi(targetWeightKg, heightCm);
+  const numHeight = Number(heightCm) || 0;
+  const numStarting = Number(startingWeightKg) || 0;
+  const numTarget = Number(targetWeightKg) || numStarting;
+
+  const healthyRange = getHealthyWeightRange(numHeight);
+  const startBmi = calculateBmi(numStarting, numHeight);
+  const targetBmi = calculateBmi(numTarget, numHeight);
   const startBmiInfo = getBmiCategoryDetails(startBmi);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || heightCm <= 0 || startingWeightKg <= 0 || targetWeightKg <= 0) return;
+    if (!name.trim() || numStarting <= 0) return;
 
     const member: Member = {
       id: memberToEdit ? memberToEdit.id : `mem-${Date.now()}`,
       name: name.trim(),
       avatar: (avatar.trim() || name.trim()[0]).toUpperCase(),
       color,
-      heightCm: Number(heightCm),
-      startingWeightKg: Number(startingWeightKg),
-      targetWeightKg: Number(targetWeightKg),
+      heightCm: numHeight,
+      startingWeightKg: numStarting,
+      targetWeightKg: numTarget,
       joinDate: memberToEdit ? memberToEdit.joinDate : new Date().toISOString().split("T")[0],
       notes: notes.trim() || undefined,
     };
@@ -167,28 +171,32 @@ export function MemberModal({
             </div>
           </div>
 
-          {/* Mandatory Height in cm */}
+          {/* Height in cm (Optional / Pending) */}
           <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-bold text-cyan-300 flex items-center gap-1.5">
                 <Heartbeat size={15} weight="fill" />
-                <span>Mandatory Height (cm)</span>
+                <span>Height (cm)</span>
               </label>
-              <span className="text-[11px] text-cyan-200/80 font-mono">Required for BMI</span>
+              <span className="text-[11px] text-cyan-200/80 font-mono">Optional for now</span>
             </div>
             <input
               type="number"
               step="1"
               min="100"
               max="250"
+              placeholder="e.g. 175 (leave empty if pending)"
               value={heightCm}
-              onChange={(e) => setHeightCm(Number(e.target.value))}
-              required
-              className="w-full h-11 px-3 rounded-xl bg-slate-950 border border-cyan-500/40 text-white text-base font-bold tabular-nums focus:outline-none focus:border-cyan-400"
+              onChange={(e) => setHeightCm(e.target.value === "" ? "" : Number(e.target.value))}
+              className="w-full h-11 px-3 rounded-xl bg-slate-950 border border-cyan-500/40 text-white text-base font-bold tabular-nums focus:outline-none focus:border-cyan-400 placeholder:text-slate-600 placeholder:font-normal placeholder:text-xs"
             />
-            {heightCm > 0 && (
+            {numHeight > 0 ? (
               <p className="text-[11px] text-cyan-300/90 mt-2">
                 Healthy weight span (BMI 18.5 - 24.9): <strong>{healthyRange.minKg} kg</strong> – <strong>{healthyRange.maxKg} kg</strong>
+              </p>
+            ) : (
+              <p className="text-[11px] text-slate-400 mt-2">
+                Can be left empty for now. BMI & healthy target range will update automatically once height is added.
               </p>
             )}
           </div>
@@ -203,12 +211,12 @@ export function MemberModal({
                 min="30"
                 max="300"
                 value={startingWeightKg}
-                onChange={(e) => setStartingWeightKg(Number(e.target.value))}
+                onChange={(e) => setStartingWeightKg(e.target.value === "" ? "" : Number(e.target.value))}
                 required
                 className="w-full h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-semibold tabular-nums focus:outline-none focus:border-amber-500"
               />
               <span className="text-[11px] text-slate-400 mt-1 block">
-                Start BMI: <strong className={startBmiInfo.badgeText}>{startBmi}</strong>
+                Start BMI: <strong className={startBmiInfo.badgeText}>{startBmi > 0 ? startBmi : "Pending"}</strong>
               </span>
             </div>
 
@@ -220,12 +228,12 @@ export function MemberModal({
                 min="30"
                 max="300"
                 value={targetWeightKg}
-                onChange={(e) => setTargetWeightKg(Number(e.target.value))}
+                onChange={(e) => setTargetWeightKg(e.target.value === "" ? "" : Number(e.target.value))}
                 required
                 className="w-full h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-semibold tabular-nums focus:outline-none focus:border-amber-500"
               />
               <span className="text-[11px] text-slate-400 mt-1 block">
-                Target BMI: <strong className="text-emerald-400">{targetBmi}</strong>
+                Target BMI: <strong className="text-emerald-400">{targetBmi > 0 ? targetBmi : "Pending"}</strong>
               </span>
             </div>
           </div>

@@ -14,6 +14,7 @@ export function calculateBmi(weightKg: number, heightCm: number): number {
  * Categorizes BMI according to WHO standard thresholds
  */
 export function getBmiCategory(bmi: number): BMICategory {
+  if (!bmi || bmi <= 0) return "Pending";
   if (bmi < 18.5) return "Underweight";
   if (bmi < 25.0) return "Normal";
   if (bmi < 30.0) return "Overweight";
@@ -31,6 +32,14 @@ export function getBmiCategoryDetails(bmi: number): {
 } {
   const category = getBmiCategory(bmi);
   switch (category) {
+    case "Pending":
+      return {
+        category,
+        color: "#94A3B8", // slate-400
+        badgeBg: "bg-slate-500/15 border-slate-500/30",
+        badgeText: "text-slate-400",
+        description: "Height measurement needed to calculate BMI",
+      };
     case "Underweight":
       return {
         category,
@@ -152,9 +161,9 @@ export function calculateMemberInsight(member: Member, allLogs: WeightLog[]): Me
     : 0;
 
   const goalSpan = startingWeightKg - targetWeightKg;
-  const percentToGoal = goalSpan !== 0
+  const percentToGoal = goalSpan > 0
     ? Math.min(100, Math.max(0, Math.round((totalLossKg / goalSpan) * 1000) / 10))
-    : 100;
+    : 0;
 
   const remainingToGoalKg = Math.max(0, Math.round((currentWeightKg - targetWeightKg) * 10) / 10);
 
@@ -165,10 +174,12 @@ export function calculateMemberInsight(member: Member, allLogs: WeightLog[]): Me
 
   const healthyRange = getHealthyWeightRange(member.heightCm);
   let kgToHealthyRange = 0;
-  if (currentWeightKg > healthyRange.maxKg) {
-    kgToHealthyRange = Math.round((currentWeightKg - healthyRange.maxKg) * 10) / 10;
-  } else if (currentWeightKg < healthyRange.minKg) {
-    kgToHealthyRange = Math.round((healthyRange.minKg - currentWeightKg) * 10) / 10;
+  if (member.heightCm > 0 && healthyRange.maxKg > 0) {
+    if (currentWeightKg > healthyRange.maxKg) {
+      kgToHealthyRange = Math.round((currentWeightKg - healthyRange.maxKg) * 10) / 10;
+    } else if (currentWeightKg < healthyRange.minKg) {
+      kgToHealthyRange = Math.round((healthyRange.minKg - currentWeightKg) * 10) / 10;
+    }
   }
 
   // Weekly rate calculation
@@ -259,15 +270,18 @@ export function calculateCohortSummary(members: Member[], logs: WeightLog[]): Co
     insights.reduce((acc, curr) => acc + curr.targetWeightKg, 0) * 10
   ) / 10;
 
-  const avgInitialBmi = Math.round(
-    (insights.reduce((acc, curr) => acc + curr.startingBmi, 0) / members.length) * 10
-  ) / 10;
+  const membersWithBmi = insights.filter((i) => i.member.heightCm > 0 && i.currentBmi > 0);
+  const avgInitialBmi = membersWithBmi.length > 0
+    ? Math.round((membersWithBmi.reduce((acc, curr) => acc + curr.startingBmi, 0) / membersWithBmi.length) * 10) / 10
+    : 0;
 
-  const avgCurrentBmi = Math.round(
-    (insights.reduce((acc, curr) => acc + curr.currentBmi, 0) / members.length) * 10
-  ) / 10;
+  const avgCurrentBmi = membersWithBmi.length > 0
+    ? Math.round((membersWithBmi.reduce((acc, curr) => acc + curr.currentBmi, 0) / membersWithBmi.length) * 10) / 10
+    : 0;
 
-  const averageBmiDrop = Math.round((avgInitialBmi - avgCurrentBmi) * 10) / 10;
+  const averageBmiDrop = avgInitialBmi > 0 && avgCurrentBmi > 0
+    ? Math.round((avgInitialBmi - avgCurrentBmi) * 10) / 10
+    : 0;
 
   const totalGoalDelta = collectiveStartKg - collectiveTargetKg;
   const progressPercent = totalGoalDelta > 0

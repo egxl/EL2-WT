@@ -68,17 +68,24 @@ export function CohortHero({ summary, unit }: CohortHeroProps) {
         <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
           <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
             <span className="text-[11px] text-slate-400 block mb-0.5">Group Average BMI</span>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-400 line-through tabular-nums">
-                {summary.averageInitialBmi.toFixed(1)}
-              </span>
-              <span className="text-sm font-bold text-white tabular-nums">
-                {summary.averageCurrentBmi.toFixed(1)}
-              </span>
-              <span className="text-[11px] font-bold text-emerald-400">
-                (-{summary.averageBmiDrop.toFixed(1)})
-              </span>
-            </div>
+            {summary.averageCurrentBmi > 0 ? (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-400 line-through tabular-nums">
+                  {summary.averageInitialBmi.toFixed(1)}
+                </span>
+                <span className="text-sm font-bold text-white tabular-nums">
+                  {summary.averageCurrentBmi.toFixed(1)}
+                </span>
+                <span className="text-[11px] font-bold text-emerald-400">
+                  (-{summary.averageBmiDrop.toFixed(1)})
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                <span className="font-semibold text-slate-300">Pending</span>
+                <span className="text-[11px] text-slate-500">(Awaiting heights)</span>
+              </div>
+            )}
           </div>
 
           <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">

@@ -31,3 +31,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# private data & backups (not committed to git)
+data/
+*.backup.json
+cohort-*.json

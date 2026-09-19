@@ -4,14 +4,15 @@ export type BMICategory =
   | "Overweight"
   | "Obese Class I"
   | "Obese Class II"
-  | "Obese Class III";
+  | "Obese Class III"
+  | "Pending";
 
 export interface Member {
   id: string;
   name: string;
   avatar: string; // Avatar identifier or initials
   color: string; // Member specific accent color (hex)
-  heightCm: number; // Mandatory height in cm
+  heightCm: number; // Height in cm (0 if pending measurement)
   startingWeightKg: number;
   targetWeightKg: number;
   joinDate: string; // ISO date string (YYYY-MM-DD)

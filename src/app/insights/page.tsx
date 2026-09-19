@@ -38,10 +38,11 @@ export default function InsightsPage() {
 
   // Distribution across categories
   const categoryCounts = {
-    Underweight: insights.filter((i) => i.bmiCategory === "Underweight").length,
-    Normal: insights.filter((i) => i.bmiCategory === "Normal").length,
-    Overweight: insights.filter((i) => i.bmiCategory === "Overweight").length,
-    Obese: insights.filter((i) => i.bmiCategory.startsWith("Obese")).length,
+    Pending: insights.filter((i) => i.bmiCategory === "Pending" || !i.member.heightCm || i.member.heightCm <= 0).length,
+    Underweight: insights.filter((i) => i.member.heightCm > 0 && i.bmiCategory === "Underweight").length,
+    Normal: insights.filter((i) => i.member.heightCm > 0 && i.bmiCategory === "Normal").length,
+    Overweight: insights.filter((i) => i.member.heightCm > 0 && i.bmiCategory === "Overweight").length,
+    Obese: insights.filter((i) => i.member.heightCm > 0 && i.bmiCategory.startsWith("Obese")).length,
   };
 
   return (
@@ -69,12 +70,19 @@ export default function InsightsPage() {
                 <span>Elemen 2 Health Distribution</span>
               </span>
               <span className="text-xs text-emerald-400 font-bold">
-                Avg BMI: {cohortSummary.averageCurrentBmi.toFixed(1)}
+                Avg BMI: {cohortSummary.averageCurrentBmi > 0 ? cohortSummary.averageCurrentBmi.toFixed(1) : "Pending"}
               </span>
             </div>
 
             {/* Distribution Bar */}
             <div className="h-3 w-full rounded-full overflow-hidden flex bg-slate-900 border border-white/5">
+              {categoryCounts.Pending > 0 && (
+                <div
+                  style={{ width: `${(categoryCounts.Pending / members.length) * 100}%` }}
+                  className="bg-slate-500"
+                  title="Pending Height"
+                />
+              )}
               {categoryCounts.Underweight > 0 && (
                 <div
                   style={{ width: `${(categoryCounts.Underweight / members.length) * 100}%` }}
@@ -106,10 +114,14 @@ export default function InsightsPage() {
             </div>
 
             {/* Category legend pills */}
-            <div className="grid grid-cols-4 gap-1.5 text-center text-[10px]">
-              <div className="p-1.5 rounded-lg bg-white/5">
+            <div className="grid grid-cols-5 gap-1.5 text-center text-[10px]">
+              <div className="p-1.5 rounded-lg bg-white/5 border border-white/5">
+                <span className="block text-slate-400 font-bold">{categoryCounts.Pending}</span>
+                <span className="text-slate-400">Pending</span>
+              </div>
+              <div className="p-1.5 rounded-lg bg-sky-500/10 border border-sky-500/20">
                 <span className="block text-sky-400 font-bold">{categoryCounts.Underweight}</span>
-                <span className="text-slate-400">Under</span>
+                <span className="text-sky-300">Under</span>
               </div>
               <div className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                 <span className="block text-emerald-400 font-bold">{categoryCounts.Normal}</span>
@@ -119,9 +131,9 @@ export default function InsightsPage() {
                 <span className="block text-amber-400 font-bold">{categoryCounts.Overweight}</span>
                 <span className="text-amber-300 font-semibold">Over</span>
               </div>
-              <div className="p-1.5 rounded-lg bg-white/5">
+              <div className="p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20">
                 <span className="block text-rose-400 font-bold">{categoryCounts.Obese}</span>
-                <span className="text-slate-400">Obese</span>
+                <span className="text-rose-300">Obese</span>
               </div>
             </div>
           </div>
@@ -173,7 +185,10 @@ export default function InsightsPage() {
                 <div>
                   <h3 className="text-base font-bold text-white">{activeInsight.member.name}</h3>
                   <p className="text-xs text-slate-400">
-                    Height: <strong className="text-cyan-400 font-bold">{activeInsight.member.heightCm} cm</strong>
+                    Height:{" "}
+                    <strong className="text-cyan-400 font-bold">
+                      {activeInsight.member.heightCm > 0 ? `${activeInsight.member.heightCm} cm` : "Pending measurement"}
+                    </strong>
                   </p>
                 </div>
               </div>

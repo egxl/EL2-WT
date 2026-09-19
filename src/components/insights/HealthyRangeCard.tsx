@@ -12,8 +12,9 @@ interface HealthyRangeCardProps {
 
 export function HealthyRangeCard({ insight, unit }: HealthyRangeCardProps) {
   const { member, currentWeightKg, healthyWeightRange, kgToHealthyRange, weeklyRateKg, projectedWeeksToGoal } = insight;
+  const hasHeight = member.heightCm > 0;
 
-  const isInHealthyZone = currentWeightKg >= healthyWeightRange.minKg && currentWeightKg <= healthyWeightRange.maxKg;
+  const isInHealthyZone = hasHeight && currentWeightKg >= healthyWeightRange.minKg && currentWeightKg <= healthyWeightRange.maxKg;
 
   const displayMin = unit === "lbs" ? `${kgToLbs(healthyWeightRange.minKg)} lbs` : `${healthyWeightRange.minKg} kg`;
   const displayMax = unit === "lbs" ? `${kgToLbs(healthyWeightRange.maxKg)} lbs` : `${healthyWeightRange.maxKg} kg`;
@@ -28,16 +29,25 @@ export function HealthyRangeCard({ insight, unit }: HealthyRangeCardProps) {
             </div>
             <div>
               <h4 className="text-xs font-bold text-white uppercase tracking-wider">Healthy Range Target</h4>
-              <p className="text-[11px] text-slate-400">Calculated for height: {member.heightCm} cm</p>
+              <p className="text-[11px] text-slate-400">
+                {hasHeight ? `Calculated for height: ${member.heightCm} cm` : "Height measurement pending"}
+              </p>
             </div>
           </div>
           <span className="text-xs font-mono font-bold text-cyan-400">
-            {displayMin} – {displayMax}
+            {hasHeight ? `${displayMin} – ${displayMax}` : "Pending"}
           </span>
         </div>
 
         {/* Status Callout Banner */}
-        {isInHealthyZone ? (
+        {!hasHeight ? (
+          <div className="p-2.5 rounded-xl bg-slate-800/60 border border-white/10 flex items-center gap-2.5">
+            <Target size={18} className="text-slate-400 shrink-0" weight="bold" />
+            <p className="text-xs text-slate-300">
+              Optimal target range (BMI 18.5 – 24.9) will be automatically generated once height is recorded in Maintainer mode.
+            </p>
+          </div>
+        ) : isInHealthyZone ? (
           <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-2.5">
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <p className="text-xs text-emerald-300 font-medium">

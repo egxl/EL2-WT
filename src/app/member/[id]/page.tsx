@@ -166,7 +166,10 @@ export default function MemberDetailPage() {
                 </div>
                 <div className="flex items-center gap-2 text-xs text-slate-400 mt-1">
                   <span>
-                    Height: <strong className="text-cyan-400 font-bold">{member.heightCm} cm</strong>
+                    Height:{" "}
+                    <strong className="text-cyan-400 font-bold">
+                      {member.heightCm > 0 ? `${member.heightCm} cm` : "Pending"}
+                    </strong>
                   </span>
                   <span>•</span>
                   <span>{insight.historyCount} weigh-ins</span>
@@ -194,7 +197,9 @@ export default function MemberDetailPage() {
               <div className="p-2.5 rounded-xl bg-white/5">
                 <span className="text-[10px] text-slate-400 block mb-0.5">Target</span>
                 <span className="text-xs font-bold text-slate-300 tabular-nums">
-                  {formatWeight(insight.targetWeightKg, unit)}
+                  {insight.targetWeightKg > 0 && insight.targetWeightKg !== insight.startingWeightKg
+                    ? formatWeight(insight.targetWeightKg, unit)
+                    : "TBD"}
                 </span>
               </div>
             </div>
@@ -251,9 +256,11 @@ export default function MemberDetailPage() {
                       <span className="text-sm font-extrabold text-white tabular-nums">
                         {formatWeight(log.weightKg, unit)}
                       </span>
-                      <span className="text-[11px] font-mono text-cyan-400">
-                        BMI {logBmi}
-                      </span>
+                      {member.heightCm > 0 && (
+                        <span className="text-[11px] font-mono text-cyan-400">
+                          BMI {logBmi}
+                        </span>
+                      )}
                       {log.mood && (
                         <span className="text-xs">
                           {log.mood === "great" && "🔥"}
