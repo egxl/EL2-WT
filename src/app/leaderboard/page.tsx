@@ -17,7 +17,10 @@ import {
   Heartbeat,
   CheckCircle,
   Funnel,
+  Info,
+  Question,
 } from "@phosphor-icons/react";
+import { RankExplanationModal } from "@/components/modals/RankExplanationModal";
 
 type SortTab = "overall" | "target" | "ideal" | "streak";
 type CategoryFilter = "all" | GoalType;
@@ -28,6 +31,7 @@ export default function LeaderboardPage() {
   const [unit, setUnit] = useState<UnitPreference>("kg");
   const [activeTab, setActiveTab] = useState<SortTab>("overall");
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
+  const [showExplanationModal, setShowExplanationModal] = useState(false);
 
   const loadData = () => {
     setMembers(getMembers());
@@ -126,6 +130,16 @@ export default function LeaderboardPage() {
               Rewarding goal progress, ideal health, and consistency
             </p>
           </div>
+
+          {/* How It Works Explainer Button */}
+          <button
+            onClick={() => setShowExplanationModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-xs font-bold text-amber-400 active:scale-95 transition-all shadow-sm shrink-0"
+            title="Read ranking logic & scoring breakdown"
+          >
+            <Info size={15} weight="bold" />
+            <span>How It Works</span>
+          </button>
         </div>
 
         {/* Primary Leaderboard Sort Switcher Tabs */}
@@ -453,9 +467,34 @@ export default function LeaderboardPage() {
             )}
           </div>
         </div>
+
+        {/* Transparent Ranking Guide Box */}
+        <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-200">
+              <Info size={16} className="text-amber-400" weight="fill" />
+              <span>How Standings & Scoring Work</span>
+            </div>
+            <button
+              onClick={() => setShowExplanationModal(true)}
+              className="text-[11px] font-bold text-amber-400 hover:text-amber-300 transition-colors"
+            >
+              Full Guide &rarr;
+            </button>
+          </div>
+          <p className="text-[11px] text-slate-400 leading-relaxed">
+            Elemen 2 tracks 3 distinct programs (<strong>🔥 Cutting</strong>, <strong>💪 Bulking</strong>, and <strong>⚖️ Maintaining</strong>). The <strong>Overall Index (0–100)</strong> blends <strong>45% Goal Progress</strong>, <strong>35% WHO Ideal Weight Proximity (BMI 22.0)</strong>, and <strong>20% Weigh-In Streak</strong> so everyone competes on an equal, healthy playing field.
+          </p>
+        </div>
       </div>
 
       <FluidBottomNav />
+
+      {/* Interactive Ranking Explanation Modal */}
+      <RankExplanationModal
+        isOpen={showExplanationModal}
+        onClose={() => setShowExplanationModal(false)}
+      />
     </main>
   );
 }

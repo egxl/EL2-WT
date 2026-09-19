@@ -18,29 +18,43 @@ A dedicated, mobile-first weight and biometric tracking web app and PWA built sp
 
 ### 1. Dedicated to "Elemen 2" (Open & Transparent)
 - Built specifically for the close group **Elemen 2**.
-- No awkward privacy barriers—starting weights, target goals, current scale numbers, and % dropped are openly displayed and celebrated together.
-- Group collective metrics: **Collective kg shed together** and **Group average BMI drop** (e.g. 27.2 $\rightarrow$ 25.4).
+- No awkward privacy barriers—starting weights, target goals, current scale numbers, and progress are openly displayed and celebrated together.
+- Group collective metrics: **Cohort Goal Milestones**, **Collective kg shed**, and **Group average BMI drop**.
 
-### 2. Mandatory Heights & Deep Biometric Insights
+### 2. Holistic, Goal-Aware Leaderboard & Ranking System
+The Elemen 2 standings system avoids the trap of rewarding pure weight loss, recognizing that members have diverse health goals:
+- **3 Goal Tracks**:
+  - **🔥 Cutting** (`target < start`): Focuses on caloric deficit and fat loss. Progress increases as weight is lost.
+  - **💪 Bulking** (`target > start`): Focuses on lean muscle and healthy mass gain. Gaining weight is treated positively and advances progress.
+  - **⚖️ Maintaining** (`target ≈ start`): Focuses on recomposition and weight stability within $\pm 0.5\text{ kg}$.
+- **Ideal Weight Proximity (WHO BMI 22.0)**:
+  - Height-calibrated: $\text{Ideal Weight (kg)} = 22.0 \times (\text{Height in meters})^2$.
+  - Normal WHO range (18.5 – 24.9) scores 85–100%, with BMI 22.0 awarded 100%. Members already in peak shape take the podium in the Ideal Weight tab rather than being penalized.
+- **Composite Elemen 2 Index (0–100 Score)**:
+  $$\text{Index} = (45\% \times \text{Goal Progress}) + (35\% \times \text{Ideal Weight Proximity}) + (20\% \times \text{Weigh-In Streak})$$
+  Ensures no single phenotype dominates unfairly—members in ideal shape must maintain check-in consistency, while members with long transformation journeys are rewarded for every step.
+- **Multi-Tab Leaderboard**: Toggle between **⭐ Overall Index**, **🎯 Target Goal**, **🌱 Ideal Weight**, and **🔥 Consistency Streak**, with quick category filter pills (`All`, `Cutting`, `Bulking`, `Maintaining`).
+
+### 3. Mandatory Heights & Deep Biometric Insights
 - **Height Registration**: Every member must have their height recorded in centimeters.
 - **Continuous BMI Scale Gauge**: Real-time WHO classification (Underweight, Normal, Overweight, Obese classes).
 - **Personalized Healthy Weight Range**: Mathematically computes the exact target weight bracket (BMI 18.5 – 24.9) customized to each member's height.
 - **Velocity & Projections**: 7-day smoothed moving average to eliminate water-weight fluctuations, weekly rate of change (kg/wk), and projected weeks to goal.
 
-### 3. Global Cohort Password Gate + Maintainer PIN Protection
+### 4. Global Cohort Password Gate + Maintainer PIN Protection
 - **Global Cohort Password Gate**: To prevent outsiders from accessing our data, all visitors must enter the cohort password upon first visiting.
   - **Default Cohort Password**: `elemen2` (configurable via `NEXT_PUBLIC_COHORT_PASSWORD` or in Settings).
   - **Instant Multi-Device Session Invalidation**: When an admin changes the password, all existing sessions across all cohort members are immediately invalidated, locking the site until the new password is provided.
 - **Maintainer PIN Gate**: Logging weigh-ins, modifying members, or changing passwords requires the **Maintainer PIN** (Default PIN: `1234`).
 - Frictionless viewing for cohort members once unlocked on their personal devices.
 
-### 4. Mobile-First PWA & Double-Bezel Design
+### 5. Mobile-First PWA & Double-Bezel Design
 - **High-End Hardware Aesthetic**: Concentric double-bezel card structure, OLED midnight background, and precision `@phosphor-icons/react` iconography.
 - **Tabular Numerals**: Numbers never jitter or trigger layout shifts during weight adjustments.
 - **Floating Island Navigation**: Ergonomic bottom tab bar with iOS safe-area support (`safe-bottom`) and a spring "+ Log" action.
 - **Installable**: "Add to Home Screen" on iOS Safari and Android Chrome for a native app feel.
 
-### 5. Supabase Cloud Persistence & Multi-Device Realtime Sync
+### 6. Supabase Cloud Persistence & Multi-Device Realtime Sync
 - **Centralized PostgreSQL Cloud**: Powered by free-tier [Supabase](https://supabase.com).
 - **Real-Time WebSockets**: Any weigh-in logged by any member immediately reflects across all active phones without page refreshing.
 - **Offline-First Hybrid Cache**: Works seamlessly offline; instantly loads from local cache and hydrates from the cloud in the background.
