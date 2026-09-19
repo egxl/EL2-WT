@@ -46,7 +46,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`dark ${sans.variable} ${mono.variable}`}>
-      <body className="bg-[#0B0F17] text-slate-100 min-h-[100dvh] flex flex-col items-center justify-start antialiased selection:bg-volt-500/30 selection:text-volt-300 font-sans">
+      <body className={`${sans.className} bg-[#0B0F17] text-slate-100 min-h-[100dvh] flex flex-col items-center justify-start antialiased selection:bg-volt-500/30 selection:text-volt-300 font-sans`}>
         {/* Subtle Athletic Grid / Ambient Lighting */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
           <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[32rem] h-[24rem] bg-volt-500/[0.04] blur-[100px] rounded-full" />

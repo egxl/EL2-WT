@@ -51,8 +51,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-mono)", "monospace"],
+        sans: ["var(--font-sans)", "'Plus Jakarta Sans'", "system-ui", "-apple-system", "BlinkMacSystemFont", "'Segoe UI'", "Roboto", "sans-serif"],
+        mono: ["var(--font-mono)", "'JetBrains Mono'", "'SF Mono'", "Monaco", "monospace"],
       },
       spacing: {
         "safe-top": "env(safe-area-inset-top, 0px)",
