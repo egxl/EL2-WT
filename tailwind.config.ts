@@ -10,32 +10,59 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        carbon: {
+          950: "#0B0F17", // Canvas background
+          900: "#0F1522", // Recessed well
+          850: "#131A26", // Card plate surface
+          800: "#192233", // Elevated hover surface
+          700: "#222F46", // Border / highlight ring
+          600: "#334460",
+        },
+        volt: {
+          300: "#EEFF85",
+          400: "#E2FE55",
+          500: "#D4F63D", // High-visibility athletic volt
+          600: "#B8DC1E",
+          700: "#96B80E",
+        },
+        cobalt: {
+          400: "#60A5FA",
+          500: "#38BDF8", // Dynamic track blue
+          600: "#2563EB",
+        },
+        // Backwards-compatible aliases
         midnight: {
-          950: "#07090E",
-          900: "#0D1117",
-          850: "#121721",
-          800: "#171E2C",
-          700: "#222D42",
-          600: "#334155",
+          950: "#0B0F17",
+          900: "#0F1522",
+          850: "#131A26",
+          800: "#182232",
+          700: "#222F46",
+          600: "#334460",
         },
         brand: {
-          50: "#FFFBEB",
-          100: "#FEF3C7",
-          200: "#FDE68A",
-          300: "#FCD34D",
-          400: "#FBBF24",
-          500: "#F59E0B",
-          600: "#D97706",
-          700: "#B45309",
+          50: "#F7FEE7",
+          100: "#ECFCCB",
+          200: "#D9F99D",
+          300: "#BEF264",
+          400: "#E2FE55",
+          500: "#D4F63D",
+          600: "#B8DC1E",
+          700: "#96B80E",
         },
       },
       fontFamily: {
-        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "monospace"],
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "monospace"],
       },
       spacing: {
         "safe-top": "env(safe-area-inset-top, 0px)",
         "safe-bottom": "env(safe-area-inset-bottom, 0px)",
+      },
+      boxShadow: {
+        "plate": "0 1px 1px rgba(0, 0, 0, 0.4), 0 8px 24px -6px rgba(0, 0, 0, 0.6)",
+        "plate-inset": "inset 0 1px 2px rgba(0, 0, 0, 0.6)",
+        "volt-glow": "0 0 24px -4px rgba(212, 246, 61, 0.35)",
+        "cobalt-glow": "0 0 24px -4px rgba(56, 189, 248, 0.35)",
       },
       animation: {
         "pulse-subtle": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",

@@ -248,49 +248,49 @@ export function LogWeightModal({
   ) / 10;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md font-mono">
       <div
-        className="w-full max-w-lg max-h-[92vh] flex flex-col rounded-t-3xl sm:rounded-3xl bg-[#0D1117] border border-white/10 shadow-2xl relative animate-in slide-in-from-bottom-6 duration-200"
+        className="w-full max-w-lg max-h-[92vh] flex flex-col rounded-t-3xl sm:rounded-3xl bg-carbon-900 border border-white/[0.1] shadow-2xl relative animate-in slide-in-from-bottom-6 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-white/10 shrink-0">
+        <div className="p-4 sm:p-5 border-b border-white/[0.08] shrink-0">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center text-amber-400">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-volt-500/15 border border-volt-500/25 flex items-center justify-center text-volt-400">
                 {mode === "bulk" ? <Users size={20} weight="duotone" /> : <User size={20} weight="duotone" />}
               </div>
               <div>
-                <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
-                  {mode === "bulk" ? "Weekly Cohort Weigh-In" : "Log Member Weigh-In"}
+                <h2 className="text-base sm:text-lg font-bold text-white tracking-tight font-sans">
+                  {mode === "bulk" ? "Weekly Cohort Weigh-In" : "Log Athlete Weigh-In"}
                 </h2>
-                <p className="text-xs text-slate-400">
-                  {mode === "bulk" ? "Fast bulk entry for weekly group weigh-in" : "Direct single entry"}
+                <p className="text-[11px] text-slate-400">
+                  {mode === "bulk" ? "High-speed cohort scale check-in session" : "Direct single entry"}
                 </p>
               </div>
             </div>
 
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+              className="w-8 h-8 rounded-lg bg-carbon-850 hover:bg-carbon-800 flex items-center justify-center text-slate-400 hover:text-white transition-colors border border-white/[0.06]"
             >
-              <X size={16} weight="bold" />
+              <X size={15} weight="bold" />
             </button>
           </div>
 
           {/* Mode Switcher Tabs */}
-          <div className="grid grid-cols-2 gap-1 mt-3 p-1 rounded-xl bg-slate-900 border border-white/5">
+          <div className="grid grid-cols-2 gap-1 mt-3 p-1 rounded-xl bg-carbon-950 border border-white/[0.06] text-xs">
             <button
               type="button"
               onClick={() => setMode("bulk")}
               className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                 mode === "bulk"
-                  ? "bg-amber-500 text-slate-950 shadow-sm shadow-amber-500/20"
+                  ? "bg-volt-500 text-carbon-950 shadow-sm font-black"
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
               <Users size={15} weight={mode === "bulk" ? "bold" : "regular"} />
-              <span>Weekly Bulk Roster</span>
+              <span>Squad Bulk Session</span>
             </button>
 
             <button
@@ -298,12 +298,12 @@ export function LogWeightModal({
               onClick={() => setMode("single")}
               className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                 mode === "single"
-                  ? "bg-amber-500 text-slate-950 shadow-sm shadow-amber-500/20"
+                  ? "bg-volt-500 text-carbon-950 shadow-sm font-black"
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
               <User size={15} weight={mode === "single" ? "bold" : "regular"} />
-              <span>Single Member</span>
+              <span>Single Athlete</span>
             </button>
           </div>
         </div>
@@ -445,7 +445,7 @@ export function LogWeightModal({
             </div>
 
             {/* Sticky Bottom Actions Bar */}
-            <div className="p-4 border-t border-white/10 bg-[#0D1117]/95 backdrop-blur-md space-y-2 shrink-0">
+            <div className="p-4 border-t border-carbon-700/60 bg-carbon-900/95 backdrop-blur-md space-y-2 shrink-0">
               <div className="flex items-center justify-between text-xs font-semibold px-1">
                 <span className="text-slate-400">
                   Status: <strong className="text-white">{bulkEnteredCount} of {bulkActiveCount}</strong> weighed in
@@ -460,10 +460,10 @@ export function LogWeightModal({
               <button
                 type="submit"
                 disabled={bulkEnteredCount === 0}
-                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/25 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-xl bg-volt-500 hover:bg-volt-400 text-carbon-950 font-black text-sm shadow-volt-glow active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center justify-center gap-2 font-mono"
               >
                 <CheckCircle size={20} weight="bold" />
-                <span>Save Weekly Weigh-In ({bulkEnteredCount} {bulkEnteredCount === 1 ? "member" : "members"})</span>
+                <span>SAVE WEIGH-IN SESSION ({bulkEnteredCount} {bulkEnteredCount === 1 ? "ATHLETE" : "ATHLETES"})</span>
               </button>
             </div>
           </form>
@@ -487,13 +487,13 @@ export function LogWeightModal({
                       onClick={() => handleMemberChange(member.id)}
                       className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium shrink-0 transition-all ${
                         isSelected
-                          ? "bg-amber-500/20 border-amber-500/50 text-white shadow-sm shadow-amber-500/20"
-                          : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:text-slate-200"
+                          ? "bg-volt-500/20 border-volt-500/50 text-white shadow-sm font-bold"
+                          : "bg-carbon-850 border-white/[0.06] text-slate-400 hover:bg-carbon-800 hover:text-slate-200"
                       }`}
                     >
                       <div
-                        className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-[11px] text-slate-950"
-                        style={{ backgroundColor: member.color || "#F59E0B" }}
+                        className="w-6 h-6 rounded-md flex items-center justify-center font-bold text-[11px] text-slate-950"
+                        style={{ backgroundColor: member.color || "#D4F63D" }}
                       >
                         {member.avatar || member.name[0]}
                       </div>
@@ -505,22 +505,22 @@ export function LogWeightModal({
             </div>
 
             {/* Direct Weight Input & Steppers */}
-            <div className="p-4 rounded-2xl bg-slate-900/80 border border-white/10 text-center space-y-3">
-              <span className="text-xs text-slate-400 font-medium">Recorded Weight (kg)</span>
+            <div className="p-4 rounded-xl bg-carbon-950 border border-white/[0.08] text-center space-y-3 font-mono">
+              <span className="text-[11px] text-slate-400 uppercase tracking-wider block">Recorded Weight (kg)</span>
 
               {/* Direct numeric input with steppers */}
               <div className="flex items-center justify-center gap-2">
                 <button
                   type="button"
                   onClick={() => handleAdjustSingleWeight(-0.5)}
-                  className="w-9 h-10 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 flex items-center justify-center text-slate-200 font-bold text-xs"
+                  className="w-9 h-10 rounded-xl bg-carbon-850 hover:bg-carbon-800 active:scale-95 border border-white/[0.08] flex items-center justify-center text-slate-200 font-bold text-xs"
                 >
                   -0.5
                 </button>
                 <button
                   type="button"
                   onClick={() => handleAdjustSingleWeight(-0.1)}
-                  className="w-8 h-10 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 flex items-center justify-center text-slate-200 text-xs font-bold"
+                  className="w-8 h-10 rounded-xl bg-carbon-850 hover:bg-carbon-800 active:scale-95 border border-white/[0.08] flex items-center justify-center text-slate-200 text-xs font-bold"
                 >
                   <Minus size={13} weight="bold" />
                 </button>
@@ -532,9 +532,9 @@ export function LogWeightModal({
                     inputMode="decimal"
                     value={singleWeightStr}
                     onChange={(e) => handleSingleWeightInput(e.target.value)}
-                    className="w-32 h-12 text-center text-3xl font-extrabold text-white bg-black/50 border border-amber-500/40 rounded-xl tabular-nums focus:outline-none focus:border-amber-400"
+                    className="w-32 h-12 text-center text-3xl font-extrabold text-white bg-carbon-900 border border-volt-500/40 rounded-xl tabular-nums focus:outline-none focus:border-volt-400"
                   />
-                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-amber-400 pointer-events-none">
+                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-volt-400 pointer-events-none">
                     kg
                   </span>
                 </div>
@@ -542,14 +542,14 @@ export function LogWeightModal({
                 <button
                   type="button"
                   onClick={() => handleAdjustSingleWeight(0.1)}
-                  className="w-8 h-10 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 flex items-center justify-center text-slate-200 text-xs font-bold"
+                  className="w-8 h-10 rounded-xl bg-carbon-850 hover:bg-carbon-800 active:scale-95 border border-white/[0.08] flex items-center justify-center text-slate-200 text-xs font-bold"
                 >
                   <Plus size={13} weight="bold" />
                 </button>
                 <button
                   type="button"
                   onClick={() => handleAdjustSingleWeight(0.5)}
-                  className="w-9 h-10 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 flex items-center justify-center text-slate-200 font-bold text-xs"
+                  className="w-9 h-10 rounded-xl bg-carbon-850 hover:bg-carbon-800 active:scale-95 border border-white/[0.08] flex items-center justify-center text-slate-200 font-bold text-xs"
                 >
                   +0.5
                 </button>
@@ -557,8 +557,8 @@ export function LogWeightModal({
 
               {/* Live Biometrics Preview Pill */}
               {activeMember && (
-                <div className="flex flex-wrap items-center justify-center gap-2 pt-2 border-t border-white/5 text-[11px]">
-                  <span className={`px-2 py-0.5 rounded-full border ${bmiInfo.badgeBg} ${bmiInfo.badgeText} font-semibold`}>
+                <div className="flex flex-wrap items-center justify-center gap-2 pt-2 border-t border-white/[0.06] text-[10px]">
+                  <span className={`px-2 py-0.5 rounded border ${bmiInfo.badgeBg} ${bmiInfo.badgeText} font-semibold`}>
                     {previewBmi > 0 ? `BMI ${previewBmi} (${bmiInfo.category})` : "Pending Height"}
                   </span>
                   <span className="text-slate-400">
@@ -573,40 +573,40 @@ export function LogWeightModal({
 
             {/* Date Input */}
             <div>
-              <label className="text-xs font-medium text-slate-400 flex items-center gap-1.5 mb-1.5">
-                <CalendarBlank size={14} />
+              <label className="text-[11px] font-medium text-slate-400 flex items-center gap-1.5 mb-1">
+                <CalendarBlank size={13} />
                 <span>Date</span>
               </label>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-none focus:border-amber-500"
+                className="w-full h-10 px-3 rounded-xl bg-carbon-950 border border-white/[0.08] text-white text-xs focus:outline-none focus:border-volt-400"
               />
             </div>
 
             {/* Note Input */}
             <div>
-              <label className="text-xs font-medium text-slate-400 flex items-center gap-1.5 mb-1.5">
-                <NotePencil size={14} />
-                <span>Note (Optional)</span>
+              <label className="text-[11px] font-medium text-slate-400 flex items-center gap-1.5 mb-1">
+                <NotePencil size={13} />
+                <span>Session Notes (Optional)</span>
               </label>
               <input
                 type="text"
-                placeholder="e.g. Morning weigh-in, post-workout"
+                placeholder="e.g. Morning scale check, post-workout"
                 value={singleNote}
                 onChange={(e) => setSingleNote(e.target.value)}
-                className="w-full h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-400 text-xs focus:outline-none focus:border-amber-500"
+                className="w-full h-10 px-3 rounded-xl bg-carbon-950 border border-white/[0.08] text-white placeholder:text-slate-400 text-xs focus:outline-none focus:border-volt-400 font-sans"
               />
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-sm shadow-lg shadow-amber-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2"
+              className="w-full py-3.5 rounded-xl bg-volt-500 hover:bg-volt-400 text-carbon-950 font-black text-sm shadow-volt-glow active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2 font-mono"
             >
               <CheckCircle size={18} weight="bold" />
-              <span>Save Weigh-In</span>
+              <span>RECORD ATHLETE WEIGH-IN</span>
             </button>
           </form>
         )}

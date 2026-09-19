@@ -114,148 +114,139 @@ export default function MemberDetailPage() {
     <main className="flex-1 flex flex-col pb-28">
       <TopBar />
 
-      <div className="px-4 py-4 space-y-5">
+      <div className="px-4 py-4 space-y-4 font-mono">
         {/* Navigation & Actions */}
         <div className="flex items-center justify-between">
           <Link
             href="/"
-            className="flex items-center gap-1 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+            className="flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-white transition-colors"
           >
             <CaretLeft size={16} weight="bold" />
-            <span>Dashboard</span>
+            <span>Squad Roster</span>
           </Link>
 
           <div className="flex items-center gap-2">
             <button
               onClick={handleEditMember}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-xs font-semibold text-slate-200 transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-carbon-850 hover:bg-carbon-800 active:scale-95 border border-white/[0.08] text-xs font-semibold text-slate-200 transition-all"
             >
-              <PencilSimple size={14} />
+              <PencilSimple size={13} />
               <span>Edit</span>
             </button>
 
             <button
               onClick={handleAddLog}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-xs font-bold text-slate-950 transition-all shadow-md shadow-amber-500/20"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-volt-500 hover:bg-volt-400 active:scale-95 text-xs font-black text-carbon-950 transition-all shadow-volt-glow"
             >
               <Plus size={14} weight="bold" />
-              <span>Log Weight</span>
+              <span>Log Weigh-In</span>
             </button>
           </div>
         </div>
 
-        {/* Member Profile Hero */}
-        <div className="bezel-outer">
-          <div className="bezel-inner p-5 space-y-4">
-            <div className="flex items-center gap-4">
-              <div
-                className="w-16 h-16 rounded-2xl flex items-center justify-center font-black text-slate-950 text-2xl shadow-xl shadow-black shrink-0"
-                style={{ backgroundColor: member.color || "#F59E0B" }}
-              >
-                {member.avatar || member.name[0]}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="text-xl font-extrabold text-white">{member.name}</h1>
-                  
-                  {/* Goal Badge */}
-                  {(() => {
-                    const goalDetails = getGoalTypeDetails(insight.goalType);
-                    return (
-                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded-lg border flex items-center gap-1 ${goalDetails.badgeBg} ${goalDetails.badgeText}`}>
-                        <span>{goalDetails.icon}</span>
-                        <span>{goalDetails.label}</span>
-                      </span>
-                    );
-                  })()}
-
-                  {insight.streakWeeks >= 3 && (
-                    <span className="flex items-center gap-1 text-[10px] font-bold text-amber-400 px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/20">
-                      <Fire size={13} weight="fill" />
-                      <span>{insight.streakWeeks}w streak</span>
+        {/* Athlete Profile Hero */}
+        <div className="plate-card p-5 space-y-4">
+          <div className="flex items-center gap-3.5">
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-slate-950 text-xl shadow-md shrink-0 border border-white/10"
+              style={{ backgroundColor: member.color || "#D4F63D" }}
+            >
+              {member.avatar || member.name[0]}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-lg font-black text-white font-sans truncate">{member.name}</h1>
+                
+                {/* Goal Badge */}
+                {(() => {
+                  const goalDetails = getGoalTypeDetails(insight.goalType);
+                  return (
+                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded border flex items-center gap-0.5 ${goalDetails.badgeBg} ${goalDetails.badgeText}`}>
+                      <span>{goalDetails.icon}</span>
+                      <span>{goalDetails.label}</span>
                     </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 text-xs text-slate-400 mt-1 flex-wrap">
-                  <span>
-                    Height:{" "}
-                    <strong className="text-cyan-400 font-bold">
-                      {member.heightCm > 0 ? `${member.heightCm} cm` : "Pending"}
-                    </strong>
+                  );
+                })()}
+
+                {insight.streakWeeks >= 2 && (
+                  <span className="flex items-center gap-0.5 text-[10px] font-mono font-bold text-volt-400 px-1.5 py-0.2 rounded bg-volt-500/10 border border-volt-500/25">
+                    <Fire size={12} weight="fill" />
+                    <span>{insight.streakWeeks}w streak</span>
                   </span>
-                  <span>•</span>
-                  <span>{insight.historyCount} weigh-ins</span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1 text-amber-300 font-semibold">
-                    <Sparkle size={12} weight="fill" />
-                    <span>Elemen 2 Index: <strong>{insight.compositeScore}</strong> pts</span>
-                  </span>
-                </div>
-                {member.notes && (
-                  <p className="text-xs text-slate-300 italic mt-1.5">"{member.notes}"</p>
                 )}
               </div>
+              <div className="flex items-center gap-2 text-xs text-slate-400 mt-1 flex-wrap">
+                <span>
+                  H: <strong className="text-slate-300 font-bold">{member.heightCm > 0 ? `${member.heightCm}cm` : "Pending"}</strong>
+                </span>
+                <span className="text-slate-600">•</span>
+                <span>{insight.historyCount} logs</span>
+                <span className="text-slate-600">•</span>
+                <span className="flex items-center gap-1 text-slate-300">
+                  <Sparkle size={11} weight="fill" className="text-volt-400" />
+                  <span>Index: <strong className="text-volt-400">{insight.compositeScore}</strong> pts</span>
+                </span>
+              </div>
+              {member.notes && (
+                <p className="text-[11px] text-slate-400 italic mt-1 font-sans">"{member.notes}"</p>
+              )}
             </div>
+          </div>
 
-            {/* Quick Metrics Grid (4 columns) */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-white/5 text-center">
-              <div className="p-2.5 rounded-xl bg-white/5">
-                <span className="text-[10px] text-slate-400 block mb-0.5">Start</span>
-                <span className="text-xs font-bold text-slate-300 tabular-nums">
-                  {formatWeight(insight.startingWeightKg, unit)}
-                </span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                <span className="text-[10px] text-amber-400 font-bold block mb-0.5">Current</span>
-                <span className="text-sm font-extrabold text-white tabular-nums">
-                  {formatWeight(insight.currentWeightKg, unit)}
-                </span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-white/5">
-                <span className="text-[10px] text-slate-400 block mb-0.5">Target Goal</span>
-                <span className="text-xs font-bold text-slate-300 tabular-nums">
-                  {formatWeight(insight.targetWeightKg, unit)}
-                </span>
-                <span className="text-[10px] text-emerald-400 block mt-0.5">
-                  {insight.distanceToTargetKg === 0 ? "Goal Met!" : `${formatWeight(insight.distanceToTargetKg, unit)} left`}
-                </span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
-                <span className="text-[10px] text-cyan-400 font-bold block mb-0.5">Ideal (BMI 22.0)</span>
-                <span className="text-xs font-extrabold text-cyan-200 tabular-nums">
-                  {insight.idealWeightKg > 0 ? formatWeight(insight.idealWeightKg, unit) : "Pending"}
-                </span>
-                <span className="text-[10px] text-slate-400 block mt-0.5">
-                  {insight.distanceToIdealKg === 0 ? "Bullseye" : `±${formatWeight(insight.distanceToIdealKg, unit)}`}
-                </span>
-              </div>
+          {/* Quick Metrics Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-white/[0.06] text-center">
+            <div className="plate-recessed p-2.5">
+              <span className="text-[9px] uppercase tracking-wider text-slate-400 block mb-0.5">Start</span>
+              <span className="text-xs font-bold text-slate-300 tabular-nums">
+                {formatWeight(insight.startingWeightKg, unit)}
+              </span>
+            </div>
+            <div className="plate-recessed p-2.5 border-volt-500/30 bg-volt-500/[0.04]">
+              <span className="text-[9px] uppercase tracking-wider text-volt-400 font-bold block mb-0.5">Current</span>
+              <span className="text-sm font-black text-white tabular-nums">
+                {formatWeight(insight.currentWeightKg, unit)}
+              </span>
+            </div>
+            <div className="plate-recessed p-2.5">
+              <span className="text-[9px] uppercase tracking-wider text-slate-400 block mb-0.5">Target</span>
+              <span className="text-xs font-bold text-slate-300 tabular-nums">
+                {formatWeight(insight.targetWeightKg, unit)}
+              </span>
+              <span className="text-[9px] text-emerald-400 block mt-0.5">
+                {insight.distanceToTargetKg === 0 ? "Met!" : `${formatWeight(insight.distanceToTargetKg, unit)} left`}
+              </span>
+            </div>
+            <div className="plate-recessed p-2.5">
+              <span className="text-[9px] uppercase tracking-wider text-cobalt-400 font-bold block mb-0.5">Ideal (22.0)</span>
+              <span className="text-xs font-bold text-cobalt-200 tabular-nums">
+                {insight.idealWeightKg > 0 ? formatWeight(insight.idealWeightKg, unit) : "Pending"}
+              </span>
+              <span className="text-[9px] text-slate-400 block mt-0.5">
+                {insight.distanceToIdealKg === 0 ? "Bullseye" : `±${formatWeight(insight.distanceToIdealKg, unit)}`}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Interactive Weight Chart */}
-        <div className="bezel-outer">
-          <div className="bezel-inner p-4 space-y-2">
-            <span className="text-xs font-bold text-white uppercase tracking-wider block">
-              Weight Trend & 7-Day Moving Avg
-            </span>
-            <InteractiveWeightChart
-              logs={logs}
-              heightCm={member.heightCm}
-              targetWeightKg={member.targetWeightKg}
-              unit={unit}
-            />
-          </div>
+        <div className="plate-card p-4 space-y-2">
+          <span className="text-[10px] font-bold text-white uppercase tracking-wider block font-sans">
+            Telemetry Trend & 7-Day Moving Average
+          </span>
+          <InteractiveWeightChart
+            logs={logs}
+            heightCm={member.heightCm}
+            targetWeightKg={member.targetWeightKg}
+            unit={unit}
+          />
         </div>
 
         {/* Continuous BMI Scale Gauge */}
-        <div className="bezel-outer">
-          <div className="bezel-inner p-4 space-y-2">
-            <span className="text-xs font-bold text-white uppercase tracking-wider block">
-              Continuous BMI Gauge
-            </span>
-            <BMIScaleGauge bmi={insight.currentBmi} />
-          </div>
+        <div className="plate-card p-4 space-y-2">
+          <span className="text-[10px] font-bold text-white uppercase tracking-wider block font-sans">
+            WHO Caliper Scale
+          </span>
+          <BMIScaleGauge bmi={insight.currentBmi} />
         </div>
 
         {/* Height-Calibrated Healthy Target Card */}
@@ -265,9 +256,9 @@ export default function MemberDetailPage() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Weigh-in History ({reverseLogs.length})
+              Weigh-In Timeline ({reverseLogs.length})
             </span>
-            <span className="text-[11px] text-slate-400">Latest first</span>
+            <span className="text-[10px] text-slate-400">Chronological</span>
           </div>
 
           <div className="space-y-2">
@@ -276,15 +267,15 @@ export default function MemberDetailPage() {
               return (
                 <div
                   key={log.id}
-                  className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5"
+                  className="flex items-center justify-between p-3 rounded-xl bg-carbon-850 border border-white/[0.06] hover:border-white/[0.12] transition-colors"
                 >
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-extrabold text-white tabular-nums">
+                      <span className="text-sm font-black text-white tabular-nums">
                         {formatWeight(log.weightKg, unit)}
                       </span>
                       {member.heightCm > 0 && (
-                        <span className="text-[11px] font-mono text-cyan-400">
+                        <span className="text-[10px] text-cobalt-400">
                           BMI {logBmi}
                         </span>
                       )}
@@ -297,19 +288,19 @@ export default function MemberDetailPage() {
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
+                    <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
                       <span className="flex items-center gap-1">
                         <CalendarBlank size={12} />
                         <span>{log.date}</span>
                       </span>
-                      {log.note && <span>• "{log.note}"</span>}
+                      {log.note && <span className="font-sans">"{log.note}"</span>}
                     </div>
                   </div>
 
                   {/* Delete button (maintainer only) */}
                   <button
                     onClick={() => handleDeleteLog(log.id)}
-                    className="w-7 h-7 rounded-lg bg-white/5 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 flex items-center justify-center transition-colors"
+                    className="w-7 h-7 rounded-lg bg-carbon-900 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 flex items-center justify-center transition-colors"
                     title="Delete this weigh-in"
                   >
                     <Trash size={13} />

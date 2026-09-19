@@ -49,100 +49,98 @@ export default function InsightsPage() {
     <main className="flex-1 flex flex-col pb-28">
       <TopBar />
 
-      <div className="px-4 py-4 space-y-5">
+      <div className="px-4 py-4 space-y-4 font-mono">
         {/* Page Title */}
         <div>
-          <h1 className="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
-            <Heartbeat size={22} className="text-cyan-400" weight="fill" />
-            <span>Biometric Insights</span>
+          <h1 className="text-lg sm:text-xl font-extrabold text-white tracking-tight flex items-center gap-2 font-sans">
+            <Heartbeat size={22} className="text-volt-500" weight="fill" />
+            <span>Biometric Telemetry</span>
           </h1>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Height-normalized BMI analysis & healthy range targets
+          <p className="text-[11px] text-slate-400 mt-0.5">
+            Height-Normalized WHO Zone Calibration & Body Mechanics
           </p>
         </div>
 
         {/* Cohort Category Distribution Bento */}
-        <div className="bezel-outer">
-          <div className="bezel-inner p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                <ChartPie size={16} className="text-amber-400" weight="duotone" />
-                <span>Elemen 2 Health Distribution</span>
-              </span>
-              <span className="text-xs text-emerald-400 font-bold">
-                Avg BMI: {cohortSummary.averageCurrentBmi > 0 ? cohortSummary.averageCurrentBmi.toFixed(1) : "Pending"}
-              </span>
-            </div>
+        <div className="plate-card p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5 font-sans">
+              <ChartPie size={16} className="text-volt-400" weight="duotone" />
+              <span>Squad Health Spectrum</span>
+            </span>
+            <span className="text-xs text-emerald-400 font-bold">
+              Avg BMI: {cohortSummary.averageCurrentBmi > 0 ? cohortSummary.averageCurrentBmi.toFixed(1) : "Pending"}
+            </span>
+          </div>
 
-            {/* Distribution Bar */}
-            <div className="h-3 w-full rounded-full overflow-hidden flex bg-slate-900 border border-white/5">
-              {categoryCounts.Pending > 0 && (
-                <div
-                  style={{ width: `${(categoryCounts.Pending / members.length) * 100}%` }}
-                  className="bg-slate-500"
-                  title="Pending Height"
-                />
-              )}
-              {categoryCounts.Underweight > 0 && (
-                <div
-                  style={{ width: `${(categoryCounts.Underweight / members.length) * 100}%` }}
-                  className="bg-sky-400"
-                  title="Underweight"
-                />
-              )}
-              {categoryCounts.Normal > 0 && (
-                <div
-                  style={{ width: `${(categoryCounts.Normal / members.length) * 100}%` }}
-                  className="bg-emerald-500"
-                  title="Normal"
-                />
-              )}
-              {categoryCounts.Overweight > 0 && (
-                <div
-                  style={{ width: `${(categoryCounts.Overweight / members.length) * 100}%` }}
-                  className="bg-amber-500"
-                  title="Overweight"
-                />
-              )}
-              {categoryCounts.Obese > 0 && (
-                <div
-                  style={{ width: `${(categoryCounts.Obese / members.length) * 100}%` }}
-                  className="bg-rose-500"
-                  title="Obese"
-                />
-              )}
-            </div>
+          {/* Distribution Bar */}
+          <div className="h-3 w-full rounded-md overflow-hidden flex bg-carbon-950 border border-white/[0.08] shadow-plate-inset p-0.5">
+            {categoryCounts.Pending > 0 && (
+              <div
+                style={{ width: `${(categoryCounts.Pending / members.length) * 100}%` }}
+                className="bg-slate-500 rounded-l-sm"
+                title="Pending Height"
+              />
+            )}
+            {categoryCounts.Underweight > 0 && (
+              <div
+                style={{ width: `${(categoryCounts.Underweight / members.length) * 100}%` }}
+                className="bg-sky-400"
+                title="Underweight"
+              />
+            )}
+            {categoryCounts.Normal > 0 && (
+              <div
+                style={{ width: `${(categoryCounts.Normal / members.length) * 100}%` }}
+                className="bg-emerald-500"
+                title="Normal"
+              />
+            )}
+            {categoryCounts.Overweight > 0 && (
+              <div
+                style={{ width: `${(categoryCounts.Overweight / members.length) * 100}%` }}
+                className="bg-amber-500"
+                title="Overweight"
+              />
+            )}
+            {categoryCounts.Obese > 0 && (
+              <div
+                style={{ width: `${(categoryCounts.Obese / members.length) * 100}%` }}
+                className="bg-rose-500 rounded-r-sm"
+                title="Obese"
+              />
+            )}
+          </div>
 
-            {/* Category legend pills */}
-            <div className="grid grid-cols-5 gap-1.5 text-center text-[10px]">
-              <div className="p-1.5 rounded-lg bg-white/5 border border-white/5">
-                <span className="block text-slate-400 font-bold">{categoryCounts.Pending}</span>
-                <span className="text-slate-400">Pending</span>
-              </div>
-              <div className="p-1.5 rounded-lg bg-sky-500/10 border border-sky-500/20">
-                <span className="block text-sky-400 font-bold">{categoryCounts.Underweight}</span>
-                <span className="text-sky-300">Under</span>
-              </div>
-              <div className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                <span className="block text-emerald-400 font-bold">{categoryCounts.Normal}</span>
-                <span className="text-emerald-300 font-semibold">Normal</span>
-              </div>
-              <div className="p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                <span className="block text-amber-400 font-bold">{categoryCounts.Overweight}</span>
-                <span className="text-amber-300 font-semibold">Over</span>
-              </div>
-              <div className="p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20">
-                <span className="block text-rose-400 font-bold">{categoryCounts.Obese}</span>
-                <span className="text-rose-300">Obese</span>
-              </div>
+          {/* Category legend pills */}
+          <div className="grid grid-cols-5 gap-1.5 text-center text-[10px]">
+            <div className="p-1.5 rounded-lg bg-carbon-900 border border-white/[0.05]">
+              <span className="block text-slate-400 font-bold">{categoryCounts.Pending}</span>
+              <span className="text-slate-400">Pending</span>
+            </div>
+            <div className="p-1.5 rounded-lg bg-sky-500/10 border border-sky-500/20">
+              <span className="block text-sky-400 font-bold">{categoryCounts.Underweight}</span>
+              <span className="text-sky-300">Under</span>
+            </div>
+            <div className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+              <span className="block text-emerald-400 font-bold">{categoryCounts.Normal}</span>
+              <span className="text-emerald-300 font-semibold">Normal</span>
+            </div>
+            <div className="p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
+              <span className="block text-amber-400 font-bold">{categoryCounts.Overweight}</span>
+              <span className="text-amber-300 font-semibold">Over</span>
+            </div>
+            <div className="p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20">
+              <span className="block text-rose-400 font-bold">{categoryCounts.Obese}</span>
+              <span className="text-rose-300">Obese</span>
             </div>
           </div>
         </div>
 
-        {/* Member Deep-Dive Selector */}
+        {/* Athlete Deep-Dive Selector */}
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
-            Member Deep-Dive
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2 font-mono">
+            Athlete Biometric Inspector
           </span>
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
             {insights.map((ins) => {
@@ -151,19 +149,19 @@ export default function InsightsPage() {
                 <button
                   key={ins.member.id}
                   onClick={() => setSelectedMemberId(ins.member.id)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium shrink-0 transition-all ${
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-medium shrink-0 transition-all ${
                     isSelected
-                      ? "bg-amber-500/20 border-amber-500/50 text-white shadow-sm shadow-amber-500/20"
-                      : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"
+                      ? "bg-volt-500/20 border-volt-500/50 text-white shadow-sm font-bold"
+                      : "bg-carbon-850 border-white/[0.06] text-slate-400 hover:bg-carbon-800"
                   }`}
                 >
                   <div
-                    className="w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] text-slate-950"
-                    style={{ backgroundColor: ins.member.color || "#F59E0B" }}
+                    className="w-5 h-5 rounded-md flex items-center justify-center font-bold text-[10px] text-slate-950"
+                    style={{ backgroundColor: ins.member.color || "#D4F63D" }}
                   >
                     {ins.member.avatar || ins.member.name[0]}
                   </div>
-                  <span>{ins.member.name}</span>
+                  <span className="font-sans">{ins.member.name}</span>
                 </button>
               );
             })}
@@ -172,21 +170,21 @@ export default function InsightsPage() {
 
         {/* Active Member Biometrics Card */}
         {activeInsight && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {/* Header info */}
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-carbon-850 border border-white/[0.08] flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-slate-950 text-lg shadow-md"
-                  style={{ backgroundColor: activeInsight.member.color || "#F59E0B" }}
+                  className="w-11 h-11 rounded-xl flex items-center justify-center font-black text-slate-950 text-base shadow-sm"
+                  style={{ backgroundColor: activeInsight.member.color || "#D4F63D" }}
                 >
                   {activeInsight.member.avatar || activeInsight.member.name[0]}
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">{activeInsight.member.name}</h3>
-                  <p className="text-xs text-slate-400">
+                  <h3 className="text-sm font-bold text-white font-sans">{activeInsight.member.name}</h3>
+                  <p className="text-[11px] text-slate-400">
                     Height:{" "}
-                    <strong className="text-cyan-400 font-bold">
+                    <strong className="text-volt-400 font-bold">
                       {activeInsight.member.heightCm > 0 ? `${activeInsight.member.heightCm} cm` : "Pending measurement"}
                     </strong>
                   </p>
@@ -195,7 +193,7 @@ export default function InsightsPage() {
 
               <Link
                 href={`/member/${activeInsight.member.id}`}
-                className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-amber-400 flex items-center gap-1"
+                className="px-2.5 py-1.5 rounded-lg bg-carbon-800 hover:bg-carbon-700 text-xs font-semibold text-volt-400 flex items-center gap-1 border border-white/[0.06]"
               >
                 <span>Profile</span>
                 <CaretRight size={13} weight="bold" />
@@ -203,13 +201,11 @@ export default function InsightsPage() {
             </div>
 
             {/* Continuous BMI Gauge */}
-            <div className="bezel-outer">
-              <div className="bezel-inner p-4 space-y-2">
-                <span className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
-                  Continuous BMI Spectrum
-                </span>
-                <BMIScaleGauge bmi={activeInsight.currentBmi} />
-              </div>
+            <div className="plate-card p-4 space-y-2">
+              <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block font-sans">
+                Precision Caliper Spectrum
+              </span>
+              <BMIScaleGauge bmi={activeInsight.currentBmi} />
             </div>
 
             {/* Healthy Range Target Card */}
@@ -218,13 +214,13 @@ export default function InsightsPage() {
         )}
 
         {/* Informational WHO Guide */}
-        <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
-            <Info size={16} className="text-cyan-400" />
-            <span>WHO BMI Reference Standards</span>
+        <div className="plate-recessed p-4 space-y-2">
+          <div className="flex items-center gap-2 text-xs font-bold text-slate-300 font-sans">
+            <Info size={15} className="text-volt-400" />
+            <span>WHO Biometric Standards</span>
           </div>
-          <p className="text-[11px] text-slate-400 leading-relaxed">
-            BMI is calculated as <code>weight (kg) / [height (m)]²</code>. Because height is permanently saved for every Elemen 2 member, individual target ranges (18.5 – 24.9) are mathematically tailored to avoid generic, uncalibrated weight loss targets.
+          <p className="text-[10px] text-slate-400 leading-relaxed font-sans">
+            BMI is calculated as <code>weight (kg) / [height (m)]²</code>. Because height is permanently calibrated for every Elemen 2 athlete, individual target brackets (18.5 – 24.9) are tailored to avoid generic, unscientific weight targets.
           </p>
         </div>
       </div>

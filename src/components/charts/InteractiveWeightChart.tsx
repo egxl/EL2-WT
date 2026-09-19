@@ -90,16 +90,16 @@ export function InteractiveWeightChart({
   const targetY = getY(targetWeightKg);
 
   return (
-    <div className="relative w-full overflow-hidden select-none">
+    <div className="relative w-full overflow-hidden select-none font-mono">
       {/* Legend */}
-      <div className="flex items-center justify-between text-[11px] text-slate-400 mb-2 px-1">
+      <div className="flex items-center justify-between text-[10px] text-slate-400 mb-2 px-1">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-            <span>Weigh-in</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-volt-500 shadow-sm" />
+            <span className="text-slate-300 font-semibold">Weigh-in</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-0.5 bg-cyan-400" />
+            <span className="w-3 h-0.5 bg-cobalt-500" />
             <span>7d Moving Avg</span>
           </span>
         </div>
@@ -154,24 +154,24 @@ export function InteractiveWeightChart({
           />
         )}
 
-        {/* 7-day Moving Average Line (Cyan) */}
+        {/* 7-day Moving Average Line (Cobalt) */}
         {sortedLogs.length > 1 && (
           <path
             d={smoothedPathD}
             fill="none"
-            stroke="#06B6D4"
+            stroke="#38BDF8"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="opacity-80"
+            className="opacity-90"
           />
         )}
 
-        {/* Raw Log Line (Amber) */}
+        {/* Raw Log Line (Kinetic Volt) */}
         <path
           d={rawPathD}
           fill="none"
-          stroke="#F59E0B"
+          stroke="#D4F63D"
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -196,9 +196,9 @@ export function InteractiveWeightChart({
               <circle
                 cx={cx}
                 cy={cy}
-                r={isActive ? "5" : "3.5"}
-                fill={isActive ? "#FFFFFF" : "#F59E0B"}
-                stroke="#07090E"
+                r={isActive ? "5.5" : "3.5"}
+                fill={isActive ? "#FFFFFF" : "#D4F63D"}
+                stroke="#0B0F17"
                 strokeWidth="2"
                 className="transition-all duration-150"
               />
@@ -208,7 +208,6 @@ export function InteractiveWeightChart({
 
         {/* Date labels on X axis */}
         {sortedLogs.map((log, idx) => {
-          // Show label for first, last, and every 2-3 logs to avoid clutter
           const shouldShow =
             idx === 0 ||
             idx === sortedLogs.length - 1 ||
@@ -237,21 +236,21 @@ export function InteractiveWeightChart({
 
       {/* Active Point Card Popup */}
       {activePoint && (
-        <div className="mt-2 p-2.5 rounded-xl bg-[#121824] border border-amber-500/40 shadow-lg flex items-center justify-between text-xs animate-in fade-in duration-150">
+        <div className="mt-2.5 p-3 rounded-xl bg-carbon-850 border border-volt-500/40 shadow-lg flex items-center justify-between text-xs animate-in fade-in duration-150">
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-amber-400 font-bold tabular-nums">
+              <span className="text-volt-400 font-extrabold tabular-nums">
                 {formatWeight(activePoint.log.weightKg, unit)}
               </span>
-              <span className="text-slate-400 text-[11px]">on {activePoint.log.date}</span>
+              <span className="text-slate-400 text-[10px]">on {activePoint.log.date}</span>
             </div>
             {activePoint.log.note && (
-              <p className="text-[11px] text-slate-300 italic mt-0.5">"{activePoint.log.note}"</p>
+              <p className="text-[10px] text-slate-300 italic mt-0.5">"{activePoint.log.note}"</p>
             )}
           </div>
           <div className="text-right">
             {heightCm > 0 && (
-              <span className="text-[11px] font-bold text-cyan-400 block">
+              <span className="text-[10px] font-bold text-cobalt-400 block">
                 BMI {calculateBmi(activePoint.log.weightKg, heightCm)}
               </span>
             )}

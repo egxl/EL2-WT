@@ -102,30 +102,33 @@ export default function HomePage() {
         <div className="flex items-center gap-2 pt-1">
           <button
             onClick={handleWeeklyBulkLog}
-            className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 active:scale-[0.98] transition-all"
+            className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-volt-500 hover:bg-volt-400 text-carbon-950 font-black text-xs shadow-lg shadow-volt-500/20 active:scale-[0.98] transition-all tracking-tight"
           >
             <Users size={17} weight="bold" />
-            <span>Start Weekly Weigh-In Session</span>
+            <span>START WEEKLY WEIGH-IN SESSION</span>
           </button>
 
           <button
             onClick={handleAddMember}
-            className="flex items-center gap-1.5 py-3 px-3.5 rounded-2xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-xs font-semibold text-slate-200 transition-all shrink-0"
-            title="Add Member"
+            className="flex items-center gap-1.5 py-3 px-3.5 rounded-xl bg-carbon-850 hover:bg-carbon-800 active:scale-95 border border-white/[0.08] text-xs font-bold text-slate-200 transition-all shrink-0"
+            title="Add Athlete"
           >
-            <UserPlus size={15} className="text-amber-400" />
-            <span className="hidden sm:inline">Add Member</span>
+            <UserPlus size={16} className="text-volt-400" />
+            <span className="hidden sm:inline">Add Athlete</span>
           </button>
         </div>
 
         {/* Section Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between pt-1">
           <div className="flex items-center gap-2">
-            <h2 className="text-base font-bold text-white tracking-tight">Elemen 2 Members</h2>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">
-              {members.length}
+            <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-300">
+              Squad Roster
+            </h2>
+            <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-carbon-800 text-volt-400 border border-white/[0.06]">
+              {members.length} ATHLETES
             </span>
           </div>
+          <span className="text-[10px] font-mono text-slate-400">TAP CARD FOR TELEMETRY</span>
         </div>
 
         {/* Members Grid */}

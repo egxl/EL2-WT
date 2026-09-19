@@ -55,27 +55,27 @@ export function MaintainerAuthModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-opacity">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md transition-opacity font-mono">
       <div 
-        className="w-full max-w-sm rounded-t-3xl sm:rounded-3xl bg-[#0D1117] border border-white/10 p-5 shadow-2xl shadow-black relative animate-in fade-in slide-in-from-bottom-6 duration-200"
+        className="w-full max-w-sm rounded-t-3xl sm:rounded-3xl bg-carbon-900 border border-white/[0.1] p-5 shadow-2xl shadow-black relative animate-in fade-in slide-in-from-bottom-6 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+          className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-carbon-850 hover:bg-carbon-800 flex items-center justify-center text-slate-400 hover:text-white transition-colors border border-white/[0.06]"
         >
-          <X size={16} weight="bold" />
+          <X size={15} weight="bold" />
         </button>
 
         {/* Modal Header */}
         <div className="flex flex-col items-center text-center mt-2 mb-4">
-          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-3">
-            <LockKey size={24} weight="duotone" />
+          <div className="w-11 h-11 rounded-xl bg-volt-500/10 border border-volt-500/25 text-volt-400 flex items-center justify-center mb-3">
+            <LockKey size={22} weight="duotone" />
           </div>
-          <h3 className="text-lg font-bold text-white tracking-tight">Maintainer PIN Required</h3>
-          <p className="text-xs text-slate-400 mt-1 max-w-[260px]">
-            Please enter maintainer PIN to {actionDescription}.
+          <h3 className="text-base font-extrabold text-white tracking-tight font-sans">Maintainer Passkey</h3>
+          <p className="text-[11px] text-slate-400 mt-1 max-w-[260px] font-sans">
+            Enter PIN to {actionDescription}.
           </p>
         </div>
 
@@ -86,10 +86,10 @@ export function MaintainerAuthModal({
               key={idx}
               className={`w-3.5 h-3.5 rounded-full transition-all duration-200 ${
                 pin.length > idx
-                  ? "bg-amber-400 scale-110 shadow-sm shadow-amber-400"
+                  ? "bg-volt-500 scale-110 shadow-volt-glow"
                   : error
                   ? "border-2 border-rose-500 bg-rose-500/20"
-                  : "border-2 border-slate-700 bg-slate-800"
+                  : "border-2 border-carbon-700 bg-carbon-950"
               }`}
             />
           ))}
@@ -97,19 +97,19 @@ export function MaintainerAuthModal({
 
         {error && (
           <div className="flex items-center justify-center gap-1.5 text-xs text-rose-400 font-medium mb-3">
-            <ShieldWarning size={15} weight="fill" />
+            <ShieldWarning size={14} weight="fill" />
             <span>Incorrect PIN. Try again.</span>
           </div>
         )}
 
         {/* Numeric Keypad */}
-        <div className="grid grid-cols-3 gap-2 max-w-[260px] mx-auto my-2">
+        <div className="grid grid-cols-3 gap-2 max-w-[260px] mx-auto my-2 font-mono">
           {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
             <button
               key={num}
               type="button"
               onClick={() => handleKeyPress(num)}
-              className="h-12 rounded-xl bg-white/5 hover:bg-white/10 active:bg-amber-500/20 active:scale-95 border border-white/5 text-lg font-semibold text-white transition-all flex items-center justify-center"
+              className="h-12 rounded-xl bg-carbon-850 hover:bg-carbon-800 active:bg-volt-500/20 active:scale-95 border border-white/[0.06] text-lg font-bold text-white transition-all flex items-center justify-center"
             >
               {num}
             </button>
@@ -117,23 +117,23 @@ export function MaintainerAuthModal({
           <button
             type="button"
             onClick={handleClear}
-            className="h-12 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 text-xs font-medium text-slate-400 transition-all flex items-center justify-center"
+            className="h-12 rounded-xl bg-carbon-850 hover:bg-carbon-800 active:scale-95 text-xs font-medium text-slate-400 transition-all flex items-center justify-center border border-white/[0.04]"
           >
-            Clear
+            CLR
           </button>
           <button
             type="button"
             onClick={() => handleKeyPress("0")}
-            className="h-12 rounded-xl bg-white/5 hover:bg-white/10 active:bg-amber-500/20 active:scale-95 border border-white/5 text-lg font-semibold text-white transition-all flex items-center justify-center"
+            className="h-12 rounded-xl bg-carbon-850 hover:bg-carbon-800 active:bg-volt-500/20 active:scale-95 border border-white/[0.06] text-lg font-bold text-white transition-all flex items-center justify-center"
           >
             0
           </button>
           <button
             type="button"
             onClick={handleDelete}
-            className="h-12 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 text-slate-400 transition-all flex items-center justify-center"
+            className="h-12 rounded-xl bg-carbon-850 hover:bg-carbon-800 active:scale-95 text-slate-400 transition-all flex items-center justify-center border border-white/[0.04]"
           >
-            <Backspace size={20} />
+            <Backspace size={18} />
           </button>
         </div>
 
@@ -142,15 +142,15 @@ export function MaintainerAuthModal({
           <button
             onClick={() => handleSubmit()}
             disabled={pin.length === 0}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-sm shadow-lg shadow-amber-500/25 disabled:opacity-40 disabled:pointer-events-none transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+            className="w-full py-3.5 rounded-xl bg-volt-500 hover:bg-volt-400 text-carbon-950 font-black text-xs shadow-volt-glow disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-[0.98] flex items-center justify-center gap-2 font-mono"
           >
             <CheckCircle size={18} weight="bold" />
-            <span>Unlock Access</span>
+            <span>AUTHENTICATE</span>
           </button>
         </div>
 
-        <p className="text-[11px] text-center text-slate-400 mt-3">
-          Default PIN is <span className="text-amber-400/80 font-mono">1234</span> (configurable in Settings)
+        <p className="text-[10px] text-center text-slate-400 mt-3 font-mono">
+          Default PIN: <span className="text-volt-400 font-bold">1234</span>
         </p>
       </div>
     </div>
