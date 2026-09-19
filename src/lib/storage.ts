@@ -2,13 +2,21 @@
 
 import { Member, WeightLog, UnitPreference } from "@/types";
 import { INITIAL_MEMBERS, INITIAL_WEIGHT_LOGS } from "./seed-data";
+import { isSupabaseConfigured } from "./supabase";
+import {
+  pushMemberToCloud,
+  deleteMemberFromCloud,
+  pushWeightLogToCloud,
+  deleteWeightLogFromCloud,
+  batchUploadToCloud,
+} from "./supabase-sync";
 
 const MEMBERS_KEY = "elemen2_members";
 const LOGS_KEY = "elemen2_weight_logs";
 const UNIT_KEY = "elemen2_unit_pref";
 const STORAGE_CHANGE_EVENT = "elemen2_data_updated";
 
-function emitChange() {
+export function emitChange() {
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent(STORAGE_CHANGE_EVENT));
   }
@@ -44,6 +52,12 @@ export function saveMember(member: Member): void {
   }
   localStorage.setItem(MEMBERS_KEY, JSON.stringify(members));
   emitChange();
+
+  if (isSupabaseConfigured()) {
+    pushMemberToCloud(member).catch((err) => {
+      console.warn("Async cloud member push failed:", err);
+    });
+  }
 }
 
 export function deleteMember(id: string): void {
@@ -54,6 +68,12 @@ export function deleteMember(id: string): void {
   const logs = getWeightLogs().filter((l) => l.memberId !== id);
   localStorage.setItem(LOGS_KEY, JSON.stringify(logs));
   emitChange();
+
+  if (isSupabaseConfigured()) {
+    deleteMemberFromCloud(id).catch((err) => {
+      console.warn("Async cloud member deletion failed:", err);
+    });
+  }
 }
 
 export function getWeightLogs(): WeightLog[] {
@@ -86,6 +106,12 @@ export function addWeightLog(logData: Omit<WeightLog, "id">): WeightLog {
   if (typeof window !== "undefined") {
     localStorage.setItem(LOGS_KEY, JSON.stringify(logs));
     emitChange();
+
+    if (isSupabaseConfigured()) {
+      pushWeightLogToCloud(newLog).catch((err) => {
+        console.warn("Async cloud weight log push failed:", err);
+      });
+    }
   }
   return newLog;
 }
@@ -98,6 +124,12 @@ export function updateWeightLog(updatedLog: WeightLog): void {
     logs[index] = updatedLog;
     localStorage.setItem(LOGS_KEY, JSON.stringify(logs));
     emitChange();
+
+    if (isSupabaseConfigured()) {
+      pushWeightLogToCloud(updatedLog).catch((err) => {
+        console.warn("Async cloud weight log update failed:", err);
+      });
+    }
   }
 }
 
@@ -106,6 +138,12 @@ export function deleteWeightLog(id: string): void {
   const logs = getWeightLogs().filter((l) => l.id !== id);
   localStorage.setItem(LOGS_KEY, JSON.stringify(logs));
   emitChange();
+
+  if (isSupabaseConfigured()) {
+    deleteWeightLogFromCloud(id).catch((err) => {
+      console.warn("Async cloud weight log delete failed:", err);
+    });
+  }
 }
 
 export function getUnitPreference(): UnitPreference {
@@ -136,7 +174,7 @@ export function exportData(): string {
   return JSON.stringify(data, null, 2);
 }
 
-export function importData(jsonString: string): { success: boolean; error?: string } {
+export function importData(jsonString: string): { success: boolean; error?: string; cloudSynced?: boolean } {
   try {
     const parsed = JSON.parse(jsonString);
     if (!Array.isArray(parsed.members) || !Array.isArray(parsed.logs)) {
@@ -145,7 +183,62 @@ export function importData(jsonString: string): { success: boolean; error?: stri
     localStorage.setItem(MEMBERS_KEY, JSON.stringify(parsed.members));
     localStorage.setItem(LOGS_KEY, JSON.stringify(parsed.logs));
     emitChange();
-    return { success: true };
+
+    if (isSupabaseConfigured()) {
+      batchUploadToCloud(parsed.members, parsed.logs).catch((e) => {
+        console.error("Cloud sync during import failed:", e);
+      });
+      return { success: true, cloudSynced: true };
+    }
+
+    return { success: true, cloudSynced: false };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Malformed JSON";
+    return { success: false, error: message };
+  }
+}
+
+export async function importDataAsync(jsonString: string): Promise<{
+  success: boolean;
+  error?: string;
+  cloudSynced?: boolean;
+  memberCount?: number;
+  logCount?: number;
+}> {
+  try {
+    const parsed = JSON.parse(jsonString);
+    if (!Array.isArray(parsed.members) || !Array.isArray(parsed.logs)) {
+      return { success: false, error: "Invalid backup format. Must contain members and logs." };
+    }
+    localStorage.setItem(MEMBERS_KEY, JSON.stringify(parsed.members));
+    localStorage.setItem(LOGS_KEY, JSON.stringify(parsed.logs));
+    emitChange();
+
+    if (isSupabaseConfigured()) {
+      const cloudRes = await batchUploadToCloud(parsed.members, parsed.logs);
+      if (!cloudRes.success) {
+        return {
+          success: true,
+          cloudSynced: false,
+          error: `Saved to local storage, but cloud sync encountered an issue: ${cloudRes.error}`,
+          memberCount: parsed.members.length,
+          logCount: parsed.logs.length,
+        };
+      }
+      return {
+        success: true,
+        cloudSynced: true,
+        memberCount: parsed.members.length,
+        logCount: parsed.logs.length,
+      };
+    }
+
+    return {
+      success: true,
+      cloudSynced: false,
+      memberCount: parsed.members.length,
+      logCount: parsed.logs.length,
+    };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Malformed JSON";
     return { success: false, error: message };

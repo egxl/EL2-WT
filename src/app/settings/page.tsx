@@ -6,14 +6,22 @@ import { FluidBottomNav } from "@/components/layout/FluidBottomNav";
 import { MaintainerAuthModal } from "@/components/modals/MaintainerAuthModal";
 import { isMaintainerUnlocked, lockMaintainer, updateMaintainerPin, subscribeToAuthChanges, getMaintainerPin } from "@/lib/auth";
 import { updateCohortPassword, lockCohort, getCohortPassword } from "@/lib/cohort-auth";
-import { getUnitPreference, setUnitPreference, exportData, importData, resetToDemoData, subscribeToStorage } from "@/lib/storage";
+import { getUnitPreference, setUnitPreference, exportData, importData, importDataAsync, resetToDemoData, subscribeToStorage } from "@/lib/storage";
+import { isSupabaseConfigured } from "@/lib/supabase";
+import { pullFromCloud, pushLocalToCloud } from "@/lib/supabase-sync";
 import { UnitPreference } from "@/types";
-import { Gear, LockSimple, LockSimpleOpen, DownloadSimple, UploadSimple, ArrowsCounterClockwise, Key, DeviceMobileCamera, CheckCircle, Warning, ShieldCheck, ShieldWarning } from "@phosphor-icons/react";
+import { Gear, LockSimple, LockSimpleOpen, DownloadSimple, UploadSimple, ArrowsCounterClockwise, Key, DeviceMobileCamera, CheckCircle, Warning, ShieldCheck, ShieldWarning, CloudCheck, CloudWarning, CloudArrowUp, CloudArrowDown } from "@phosphor-icons/react";
 
 export default function SettingsPage() {
   const [unlocked, setUnlocked] = useState(false);
   const [unit, setUnit] = useState<UnitPreference>("kg");
   const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // Cloud sync state
+  const [isCloudActive, setIsCloudActive] = useState(false);
+  const [cloudSyncing, setCloudSyncing] = useState(false);
+  const [cloudSyncStatus, setCloudSyncStatus] = useState<{ success?: boolean; message?: string } | null>(null);
+  const [showSqlGuide, setShowSqlGuide] = useState(false);
 
   // Change PIN state
   const [currentPinInput, setCurrentPinInput] = useState("");
@@ -34,9 +42,13 @@ export default function SettingsPage() {
   useEffect(() => {
     setUnlocked(isMaintainerUnlocked());
     setUnit(getUnitPreference());
+    setIsCloudActive(isSupabaseConfigured());
 
     const unsubAuth = subscribeToAuthChanges((s) => setUnlocked(s));
-    const unsubStorage = subscribeToStorage(() => setUnit(getUnitPreference()));
+    const unsubStorage = subscribeToStorage(() => {
+      setUnit(getUnitPreference());
+      setIsCloudActive(isSupabaseConfigured());
+    });
 
     return () => {
       unsubAuth();
@@ -88,6 +100,54 @@ export default function SettingsPage() {
     lockCohort();
   };
 
+  const handlePullFromCloud = async () => {
+    setCloudSyncing(true);
+    setCloudSyncStatus(null);
+    try {
+      const res = await pullFromCloud();
+      if (res.success) {
+        setCloudSyncStatus({
+          success: true,
+          message: `Pulled latest data from Supabase! (${res.memberCount} members, ${res.logCount} logs)`,
+        });
+      } else {
+        setCloudSyncStatus({
+          success: false,
+          message: res.error || "Failed to fetch from Supabase",
+        });
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to sync";
+      setCloudSyncStatus({ success: false, message });
+    } finally {
+      setCloudSyncing(false);
+    }
+  };
+
+  const handlePushToCloud = async () => {
+    setCloudSyncing(true);
+    setCloudSyncStatus(null);
+    try {
+      const res = await pushLocalToCloud();
+      if (res.success) {
+        setCloudSyncStatus({
+          success: true,
+          message: `Uploaded local roster to Supabase! (${res.memberCount} members, ${res.logCount} logs)`,
+        });
+      } else {
+        setCloudSyncStatus({
+          success: false,
+          message: res.error || "Failed to upload to Supabase",
+        });
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to upload";
+      setCloudSyncStatus({ success: false, message });
+    } finally {
+      setCloudSyncing(false);
+    }
+  };
+
   const handleExport = () => {
     const jsonStr = exportData();
     const blob = new Blob([jsonStr], { type: "application/json" });
@@ -99,11 +159,15 @@ export default function SettingsPage() {
     URL.revokeObjectURL(url);
   };
 
-  const handleImport = () => {
+  const handleImport = async () => {
     if (!importJsonText.trim()) return;
-    const res = importData(importJsonText);
+    setImportStatus({ message: "Importing and synchronizing data..." });
+    const res = await importDataAsync(importJsonText);
     if (res.success) {
-      setImportStatus({ success: true, message: "Data restored successfully!" });
+      const detail = res.cloudSynced
+        ? `Restored ${res.memberCount} members & ${res.logCount} logs to local storage AND synced to Supabase Cloud!`
+        : `Restored ${res.memberCount} members & ${res.logCount} logs to local storage. (Supabase cloud credentials not set)`;
+      setImportStatus({ success: true, message: detail });
       setImportJsonText("");
       setShowImportBox(false);
     } else {
@@ -115,13 +179,17 @@ export default function SettingsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       const content = event.target?.result as string;
       if (content) {
         setImportJsonText(content);
-        const res = importData(content);
+        setImportStatus({ message: `Importing ${file.name}...` });
+        const res = await importDataAsync(content);
         if (res.success) {
-          setImportStatus({ success: true, message: `Data restored successfully from ${file.name}!` });
+          const detail = res.cloudSynced
+            ? `Restored from ${file.name} to local storage AND synced to Supabase Cloud! (${res.memberCount} members, ${res.logCount} logs)`
+            : `Restored from ${file.name} to local storage. (${res.memberCount} members, ${res.logCount} logs; cloud credentials not set)`;
+          setImportStatus({ success: true, message: detail });
           setShowImportBox(false);
         } else {
           setImportStatus({ success: false, message: res.error || "Invalid JSON in file" });
