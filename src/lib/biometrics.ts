@@ -103,6 +103,52 @@ export function getHealthyWeightRange(heightCm: number): { minKg: number; maxKg:
   return { minKg, maxKg };
 }
 
+export interface TargetWeightSuggestions {
+  defaultTargetKg: number;
+  idealBmiKg: number;
+  upperNormalBmiKg: number;
+  tenPercentLossKg: number;
+}
+
+/**
+ * Calculates target weight suggestions based on height and starting weight.
+ * - idealBmiKg: BMI 22.0 (WHO optimal midpoint)
+ * - upperNormalBmiKg: BMI 24.9 (safe upper threshold of normal)
+ * - tenPercentLossKg: 90% of starting weight (clinical initial 10% milestone)
+ */
+export function getTargetWeightSuggestions(
+  heightCm: number,
+  startingWeightKg: number
+): TargetWeightSuggestions {
+  const heightM = heightCm > 0 ? heightCm / 100 : 0;
+  const hSq = heightM * heightM;
+
+  const idealBmiKg = hSq > 0 ? Math.round(22.0 * hSq * 10) / 10 : 0;
+  const upperNormalBmiKg = hSq > 0 ? Math.round(24.9 * hSq * 10) / 10 : 0;
+  const tenPercentLossKg =
+    startingWeightKg > 0 ? Math.round(startingWeightKg * 0.9 * 10) / 10 : 0;
+
+  let defaultTargetKg = 70.0;
+
+  if (idealBmiKg > 0) {
+    if (startingWeightKg > 0 && startingWeightKg <= idealBmiKg) {
+      defaultTargetKg = startingWeightKg;
+    } else {
+      defaultTargetKg = idealBmiKg;
+    }
+  } else if (tenPercentLossKg > 0) {
+    defaultTargetKg = tenPercentLossKg;
+  }
+
+  return {
+    defaultTargetKg,
+    idealBmiKg,
+    upperNormalBmiKg,
+    tenPercentLossKg,
+  };
+}
+
+
 /**
  * Calculates rolling 7-day moving average from weight logs
  */

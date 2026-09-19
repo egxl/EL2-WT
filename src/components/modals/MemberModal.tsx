@@ -1,10 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, UserPlus, CheckCircle, Trash, Heartbeat } from "@phosphor-icons/react";
+import { X, UserPlus, CheckCircle, Trash, Heartbeat, Sparkle, ArrowCounterClockwise } from "@phosphor-icons/react";
 import { Member } from "@/types";
 import { saveMember, deleteMember } from "@/lib/storage";
-import { calculateBmi, getHealthyWeightRange, getBmiCategoryDetails } from "@/lib/biometrics";
+import {
+  calculateBmi,
+  getHealthyWeightRange,
+  getBmiCategoryDetails,
+  getTargetWeightSuggestions,
+} from "@/lib/biometrics";
 
 interface MemberModalProps {
   isOpen: boolean;
@@ -36,6 +41,7 @@ export function MemberModal({
   const [heightCm, setHeightCm] = useState<number | string>("");
   const [startingWeightKg, setStartingWeightKg] = useState<number | string>(80.0);
   const [targetWeightKg, setTargetWeightKg] = useState<number | string>(70.0);
+  const [isCustomTarget, setIsCustomTarget] = useState(false);
   const [notes, setNotes] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -48,14 +54,17 @@ export function MemberModal({
       setStartingWeightKg(memberToEdit.startingWeightKg);
       setTargetWeightKg(memberToEdit.targetWeightKg);
       setNotes(memberToEdit.notes || "");
+      setIsCustomTarget(true);
     } else {
       setName("");
       setAvatar("");
       setColor(COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)]);
       setHeightCm("");
       setStartingWeightKg(80.0);
-      setTargetWeightKg(70.0);
+      const sug = getTargetWeightSuggestions(0, 80.0);
+      setTargetWeightKg(sug.defaultTargetKg);
       setNotes("");
+      setIsCustomTarget(false);
     }
     setShowDeleteConfirm(false);
   }, [memberToEdit, isOpen]);
@@ -67,9 +76,45 @@ export function MemberModal({
   const numTarget = Number(targetWeightKg) || numStarting;
 
   const healthyRange = getHealthyWeightRange(numHeight);
+  const suggestions = getTargetWeightSuggestions(numHeight, numStarting);
   const startBmi = calculateBmi(numStarting, numHeight);
   const targetBmi = calculateBmi(numTarget, numHeight);
   const startBmiInfo = getBmiCategoryDetails(startBmi);
+
+  const handleHeightChange = (val: number | string) => {
+    setHeightCm(val);
+    if (!isCustomTarget) {
+      const h = Number(val) || 0;
+      const sug = getTargetWeightSuggestions(h, numStarting);
+      setTargetWeightKg(sug.defaultTargetKg);
+    }
+  };
+
+  const handleStartingWeightChange = (val: number | string) => {
+    setStartingWeightKg(val);
+    if (!isCustomTarget) {
+      const s = Number(val) || 0;
+      const sug = getTargetWeightSuggestions(numHeight, s);
+      setTargetWeightKg(sug.defaultTargetKg);
+    }
+  };
+
+  const handleTargetWeightChange = (val: number | string) => {
+    setIsCustomTarget(true);
+    setTargetWeightKg(val);
+  };
+
+  const handleApplyPreset = (targetKg: number) => {
+    if (targetKg <= 0) return;
+    setTargetWeightKg(targetKg);
+    setIsCustomTarget(true);
+  };
+
+  const handleResetToAuto = () => {
+    setIsCustomTarget(false);
+    const sug = getTargetWeightSuggestions(numHeight, numStarting);
+    setTargetWeightKg(sug.defaultTargetKg);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,7 +232,7 @@ export function MemberModal({
               max="250"
               placeholder="e.g. 175 (leave empty if pending)"
               value={heightCm}
-              onChange={(e) => setHeightCm(e.target.value === "" ? "" : Number(e.target.value))}
+              onChange={(e) => handleHeightChange(e.target.value === "" ? "" : Number(e.target.value))}
               className="w-full h-11 px-3 rounded-xl bg-slate-950 border border-cyan-500/40 text-white text-base font-bold tabular-nums focus:outline-none focus:border-cyan-400 placeholder:text-slate-600 placeholder:font-normal placeholder:text-xs"
             />
             {numHeight > 0 ? (
@@ -211,7 +256,7 @@ export function MemberModal({
                 min="30"
                 max="300"
                 value={startingWeightKg}
-                onChange={(e) => setStartingWeightKg(e.target.value === "" ? "" : Number(e.target.value))}
+                onChange={(e) => handleStartingWeightChange(e.target.value === "" ? "" : Number(e.target.value))}
                 required
                 className="w-full h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-semibold tabular-nums focus:outline-none focus:border-amber-500"
               />
@@ -221,20 +266,104 @@ export function MemberModal({
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-slate-300 mb-1.5 block">Target Weight (kg)</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold text-slate-300">Target Weight (kg)</label>
+                {isCustomTarget ? (
+                  <span className="text-[10px] text-amber-400 font-medium px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">
+                    Custom override
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-emerald-400 font-medium px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-1">
+                    <Sparkle size={10} weight="fill" />
+                    Auto
+                  </span>
+                )}
+              </div>
               <input
                 type="number"
                 step="0.1"
                 min="30"
                 max="300"
                 value={targetWeightKg}
-                onChange={(e) => setTargetWeightKg(e.target.value === "" ? "" : Number(e.target.value))}
+                onChange={(e) => handleTargetWeightChange(e.target.value === "" ? "" : Number(e.target.value))}
                 required
                 className="w-full h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-semibold tabular-nums focus:outline-none focus:border-amber-500"
               />
               <span className="text-[11px] text-slate-400 mt-1 block">
                 Target BMI: <strong className="text-emerald-400">{targetBmi > 0 ? targetBmi : "Pending"}</strong>
               </span>
+            </div>
+          </div>
+
+          {/* Target Quick Suggestion Chips */}
+          <div className="rounded-xl bg-white/[0.03] border border-white/5 p-2.5 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
+                <Sparkle size={13} weight="fill" className="text-amber-400" />
+                <span>Target Presets</span>
+              </span>
+              {isCustomTarget ? (
+                <button
+                  type="button"
+                  onClick={handleResetToAuto}
+                  className="text-[10px] text-amber-400 hover:text-amber-300 font-medium flex items-center gap-1 hover:underline underline-offset-2 transition-colors"
+                >
+                  <ArrowCounterClockwise size={11} weight="bold" />
+                  <span>Reset to auto</span>
+                </button>
+              ) : (
+                <span className="text-[10px] text-emerald-400 font-medium">✨ Auto-updating</span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-3 gap-1.5">
+              <button
+                type="button"
+                disabled={suggestions.idealBmiKg <= 0}
+                onClick={() => handleApplyPreset(suggestions.idealBmiKg)}
+                className={`px-2 py-1.5 rounded-lg text-left transition-all border ${
+                  numTarget === suggestions.idealBmiKg && suggestions.idealBmiKg > 0
+                    ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 font-bold shadow-sm"
+                    : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed"
+                }`}
+              >
+                <div className="text-[10px] uppercase font-bold tracking-wider opacity-75">Ideal (22.0)</div>
+                <div className="text-xs font-semibold tabular-nums mt-0.5">
+                  {suggestions.idealBmiKg > 0 ? `${suggestions.idealBmiKg} kg` : "Needs height"}
+                </div>
+              </button>
+
+              <button
+                type="button"
+                disabled={suggestions.upperNormalBmiKg <= 0}
+                onClick={() => handleApplyPreset(suggestions.upperNormalBmiKg)}
+                className={`px-2 py-1.5 rounded-lg text-left transition-all border ${
+                  numTarget === suggestions.upperNormalBmiKg && suggestions.upperNormalBmiKg > 0
+                    ? "bg-cyan-500/20 border-cyan-500/50 text-cyan-300 font-bold shadow-sm"
+                    : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed"
+                }`}
+              >
+                <div className="text-[10px] uppercase font-bold tracking-wider opacity-75">Upper (24.9)</div>
+                <div className="text-xs font-semibold tabular-nums mt-0.5">
+                  {suggestions.upperNormalBmiKg > 0 ? `${suggestions.upperNormalBmiKg} kg` : "Needs height"}
+                </div>
+              </button>
+
+              <button
+                type="button"
+                disabled={suggestions.tenPercentLossKg <= 0}
+                onClick={() => handleApplyPreset(suggestions.tenPercentLossKg)}
+                className={`px-2 py-1.5 rounded-lg text-left transition-all border ${
+                  numTarget === suggestions.tenPercentLossKg && suggestions.tenPercentLossKg > 0
+                    ? "bg-amber-500/20 border-amber-500/50 text-amber-300 font-bold shadow-sm"
+                    : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed"
+                }`}
+              >
+                <div className="text-[10px] uppercase font-bold tracking-wider opacity-75">-10% Goal</div>
+                <div className="text-xs font-semibold tabular-nums mt-0.5">
+                  {suggestions.tenPercentLossKg > 0 ? `${suggestions.tenPercentLossKg} kg` : "Needs weight"}
+                </div>
+              </button>
             </div>
           </div>
 
