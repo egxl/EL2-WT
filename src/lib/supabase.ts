@@ -30,11 +30,15 @@ export function getSupabase(): SupabaseClient | null {
         persistSession: false,
         autoRefreshToken: false,
       },
-      realtime: {
-        params: {
-          eventsPerSecond: 10,
-        },
-      },
+      ...(typeof window !== "undefined"
+        ? {
+            realtime: {
+              params: {
+                eventsPerSecond: 10,
+              },
+            },
+          }
+        : {}),
     });
   }
   return supabaseInstance;
