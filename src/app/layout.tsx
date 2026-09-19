@@ -28,6 +28,8 @@ export const viewport: Viewport = {
   themeColor: "#07090E",
 };
 
+import { CohortGate } from "@/components/auth/CohortGate";
+
 export default function RootLayout({
   children,
 }: {
@@ -45,7 +47,9 @@ export default function RootLayout({
 
         {/* Mobile Viewport Shell */}
         <div className="relative z-10 w-full max-w-md min-h-[100dvh] flex flex-col bg-[#07090E] sm:border-x sm:border-white/10 sm:shadow-2xl sm:shadow-black">
-          {children}
+          <CohortGate>
+            {children}
+          </CohortGate>
         </div>
       </body>
     </html>

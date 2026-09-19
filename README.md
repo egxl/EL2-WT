@@ -27,10 +27,12 @@ A dedicated, mobile-first weight and biometric tracking web app and PWA built sp
 - **Personalized Healthy Weight Range**: Mathematically computes the exact target weight bracket (BMI 18.5 – 24.9) customized to each member's height.
 - **Velocity & Projections**: 7-day smoothed moving average to eliminate water-weight fluctuations, weekly rate of change (kg/wk), and projected weeks to goal.
 
-### 3. Frictionless Viewing + Maintainer PIN Protection
-- **No Member Login Required**: Any member of Elemen 2 can open the site on their phone to check the live dashboard, view graphs, and browse the leaderboard without creating an account or logging in.
-- **Maintainer PIN Gate**: Entering or modifying data (logging weigh-ins, editing heights/targets, adding members, deleting logs) is protected by a **Maintainer PIN/Password** (Default PIN: `1234`).
-- Once unlocked on the maintainer's device, the session persists seamlessly in local storage.
+### 3. Global Cohort Password Gate + Maintainer PIN Protection
+- **Global Cohort Password Gate**: To prevent outsiders from accessing our data, all visitors must enter the cohort password upon first visiting.
+  - **Default Cohort Password**: `elemen2` (configurable via `NEXT_PUBLIC_COHORT_PASSWORD` or in Settings).
+  - **Instant Multi-Device Session Invalidation**: When an admin changes the password, all existing sessions across all cohort members are immediately invalidated, locking the site until the new password is provided.
+- **Maintainer PIN Gate**: Logging weigh-ins, modifying members, or changing passwords requires the **Maintainer PIN** (Default PIN: `1234`).
+- Frictionless viewing for cohort members once unlocked on their personal devices.
 
 ### 4. Mobile-First PWA & Double-Bezel Design
 - **High-End Hardware Aesthetic**: Concentric double-bezel card structure, OLED midnight background, and precision `@phosphor-icons/react` iconography.
@@ -74,7 +76,8 @@ A dedicated, mobile-first weight and biometric tracking web app and PWA built sp
    - Click **"Add New..."** $\rightarrow$ **"Project"**.
    - Select your `elemen2-tracker` repository.
    - *(Optional)* In **Environment Variables**, add:
-     - `NEXT_PUBLIC_MAINTAINER_PASSWORD`: Your custom secret PIN (e.g., `8899` or any passphrase). If not set, it defaults to `1234`.
+     - `NEXT_PUBLIC_COHORT_PASSWORD`: Your secret global cohort password (e.g. `cohort2025`). If not set, defaults to `elemen2`.
+     - `NEXT_PUBLIC_MAINTAINER_PASSWORD`: Your custom maintainer PIN (e.g. `8899`). If not set, defaults to `1234`.
    - Click **"Deploy"**.
    - Your app will be live on a free `*.vercel.app` domain in less than 1 minute!
 
@@ -115,6 +118,6 @@ A dedicated, mobile-first weight and biometric tracking web app and PWA built sp
 
 ---
 
-## Default Maintainer Credentials
-- **Default PIN**: `1234`
-- You can change the PIN anytime under **Settings** $\rightarrow$ **Change Maintainer PIN**, or by defining `NEXT_PUBLIC_MAINTAINER_PASSWORD` in your Vercel Environment Variables.
+## Default Credentials
+- **Default Global Cohort Password**: `elemen2` (Gating all visitor access to the site; can be updated under **Settings** $\rightarrow$ **Global Cohort Access Password** or via `NEXT_PUBLIC_COHORT_PASSWORD`).
+- **Default Maintainer PIN**: `1234` (Unlocks write access for logging/editing; can be updated under **Settings** $\rightarrow$ **Change Maintainer PIN** or via `NEXT_PUBLIC_MAINTAINER_PASSWORD`).

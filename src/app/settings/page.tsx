@@ -5,9 +5,10 @@ import { TopBar } from "@/components/layout/TopBar";
 import { FluidBottomNav } from "@/components/layout/FluidBottomNav";
 import { MaintainerAuthModal } from "@/components/modals/MaintainerAuthModal";
 import { isMaintainerUnlocked, lockMaintainer, updateMaintainerPin, subscribeToAuthChanges, getMaintainerPin } from "@/lib/auth";
+import { updateCohortPassword, lockCohort, getCohortPassword } from "@/lib/cohort-auth";
 import { getUnitPreference, setUnitPreference, exportData, importData, resetToDemoData, subscribeToStorage } from "@/lib/storage";
 import { UnitPreference } from "@/types";
-import { Gear, LockSimple, LockSimpleOpen, DownloadSimple, UploadSimple, ArrowsCounterClockwise, Key, DeviceMobileCamera, CheckCircle, Warning } from "@phosphor-icons/react";
+import { Gear, LockSimple, LockSimpleOpen, DownloadSimple, UploadSimple, ArrowsCounterClockwise, Key, DeviceMobileCamera, CheckCircle, Warning, ShieldCheck, ShieldWarning } from "@phosphor-icons/react";
 
 export default function SettingsPage() {
   const [unlocked, setUnlocked] = useState(false);
@@ -18,6 +19,11 @@ export default function SettingsPage() {
   const [currentPinInput, setCurrentPinInput] = useState("");
   const [newPinInput, setNewPinInput] = useState("");
   const [pinChangeStatus, setPinChangeStatus] = useState<{ success?: boolean; message?: string } | null>(null);
+
+  // Change Cohort Password state
+  const [newCohortPw, setNewCohortPw] = useState("");
+  const [confirmCohortPw, setConfirmCohortPw] = useState("");
+  const [cohortPwStatus, setCohortPwStatus] = useState<{ success?: boolean; message?: string } | null>(null);
 
   // Data import state
   const [importJsonText, setImportJsonText] = useState("");
@@ -53,6 +59,33 @@ export default function SettingsPage() {
     } else {
       setPinChangeStatus({ success: false, message: result.error || "Failed to update PIN" });
     }
+  };
+
+  const handleChangeCohortPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCohortPw || newCohortPw.trim().length < 3) {
+      setCohortPwStatus({ success: false, message: "Password must be at least 3 characters" });
+      return;
+    }
+    if (newCohortPw.trim() !== confirmCohortPw.trim()) {
+      setCohortPwStatus({ success: false, message: "Passwords do not match" });
+      return;
+    }
+    const res = updateCohortPassword(newCohortPw.trim());
+    if (res.success) {
+      setCohortPwStatus({
+        success: true,
+        message: "Cohort password updated! All other devices will now require this new password to access.",
+      });
+      setNewCohortPw("");
+      setConfirmCohortPw("");
+    } else {
+      setCohortPwStatus({ success: false, message: res.error || "Failed to update password" });
+    }
+  };
+
+  const handleLockCohortSession = () => {
+    lockCohort();
   };
 
   const handleExport = () => {
@@ -218,6 +251,109 @@ export default function SettingsPage() {
             </div>
           </div>
         )}
+
+        {/* Global Cohort Access Password Card (when unlocked) */}
+        {unlocked && (
+          <div className="bezel-outer">
+            <div className="bezel-inner p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck size={18} className="text-amber-400" weight="fill" />
+                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                    Global Cohort Access Password
+                  </h3>
+                </div>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  Gate Active
+                </span>
+              </div>
+
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                This is the global password all members must enter to view this site. Changing it will immediately invalidate existing sessions on all other devices, keeping out unauthorized visitors.
+              </p>
+
+              <form onSubmit={handleChangeCohortPassword} className="space-y-3 pt-1">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[11px] text-slate-400 block mb-1">New Password</label>
+                    <input
+                      type="password"
+                      placeholder="Min 3 chars"
+                      value={newCohortPw}
+                      onChange={(e) => setNewCohortPw(e.target.value)}
+                      className="w-full h-10 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-none focus:border-amber-500 font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-400 block mb-1">Confirm</label>
+                    <input
+                      type="password"
+                      placeholder="Confirm"
+                      value={confirmCohortPw}
+                      onChange={(e) => setConfirmCohortPw(e.target.value)}
+                      className="w-full h-10 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-none focus:border-amber-500 font-mono"
+                    />
+                  </div>
+                </div>
+
+                {cohortPwStatus && (
+                  <p
+                    className={`text-xs font-medium ${
+                      cohortPwStatus.success ? "text-emerald-400" : "text-rose-400"
+                    }`}
+                  >
+                    {cohortPwStatus.message}
+                  </p>
+                )}
+
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={!newCohortPw.trim()}
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs disabled:opacity-40 transition-all shadow-md shadow-amber-500/20"
+                  >
+                    Update Cohort Password
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleLockCohortSession}
+                    className="px-3 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 font-semibold text-xs transition-all"
+                    title="Lock your cohort session now to test the gate"
+                  >
+                    Lock Gate
+                  </button>
+                </div>
+              </form>
+
+              <div className="pt-2 border-t border-white/5 text-[11px] text-slate-500 space-y-1">
+                <p>
+                  💡 <strong>Production Note</strong>: For multi-device deployments on Vercel, set <code className="text-amber-400/90 font-mono">NEXT_PUBLIC_COHORT_PASSWORD</code> in your Vercel Project Settings. Redeploying or changing it there instantly invalidates all members' sessions across all phones.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Cohort Privacy Gate Quick Control (Always visible) */}
+        <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={18} className="text-emerald-400" weight="fill" />
+              <span className="text-xs font-bold text-white uppercase tracking-wider">
+                Cohort Privacy Gate
+              </span>
+            </div>
+            <button
+              onClick={handleLockCohortSession}
+              className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 active:scale-95 text-xs font-semibold text-slate-200 transition-all"
+            >
+              Lock Site
+            </button>
+          </div>
+          <p className="text-[11px] text-slate-400 leading-relaxed">
+            Site is currently unlocked. Tap <strong>Lock Site</strong> anytime to immediately return to the Cohort Password Gate.
+          </p>
+        </div>
 
         {/* Measurement Unit */}
         <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
