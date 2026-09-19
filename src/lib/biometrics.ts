@@ -1,4 +1,4 @@
-import { BMICategory, Member, MemberInsight, WeightLog, CohortSummary } from "@/types";
+import { BMICategory, GoalType, Member, MemberInsight, WeightLog, CohortSummary } from "@/types";
 
 /**
  * Calculates BMI: weight (kg) / [height (m)]^2
@@ -89,6 +89,154 @@ export function getBmiCategoryDetails(bmi: number): {
         description: "Class III high health consideration (BMI ≥ 40)",
       };
   }
+}
+
+/**
+ * Determines a member's goal type.
+ * Auto-detects based on starting and target weights if not explicitly set.
+ */
+export function determineGoalType(
+  startingWeightKg: number,
+  targetWeightKg: number,
+  explicitGoal?: GoalType
+): GoalType {
+  if (explicitGoal) return explicitGoal;
+  if (!startingWeightKg || !targetWeightKg) return "maintaining";
+  if (targetWeightKg < startingWeightKg - 0.5) return "cutting";
+  if (targetWeightKg > startingWeightKg + 0.5) return "bulking";
+  return "maintaining";
+}
+
+export function getGoalTypeDetails(goalType: GoalType): {
+  type: GoalType;
+  label: string;
+  badgeBg: string;
+  badgeText: string;
+  color: string;
+  icon: string;
+  description: string;
+} {
+  switch (goalType) {
+    case "cutting":
+      return {
+        type: "cutting",
+        label: "Cutting",
+        badgeBg: "bg-rose-500/15 border-rose-500/30",
+        badgeText: "text-rose-400",
+        color: "#F43F5E",
+        icon: "🔥",
+        description: "Focusing on fat loss & caloric deficit",
+      };
+    case "bulking":
+      return {
+        type: "bulking",
+        label: "Bulking",
+        badgeBg: "bg-indigo-500/15 border-indigo-500/30",
+        badgeText: "text-indigo-400",
+        color: "#6366F1",
+        icon: "💪",
+        description: "Focusing on lean mass gain & caloric surplus",
+      };
+    case "maintaining":
+      return {
+        type: "maintaining",
+        label: "Maintaining",
+        badgeBg: "bg-emerald-500/15 border-emerald-500/30",
+        badgeText: "text-emerald-400",
+        color: "#10B981",
+        icon: "⚖️",
+        description: "Focusing on healthy weight maintenance & recomp",
+      };
+  }
+}
+
+/**
+ * Calculates ideal weight at WHO optimal BMI 22.0
+ */
+export function calculateIdealWeight(heightCm: number): number {
+  if (!heightCm || heightCm <= 0) return 0;
+  const heightM = heightCm / 100;
+  return Math.round(22.0 * heightM * heightM * 10) / 10;
+}
+
+/**
+ * Computes an Ideal Proximity Score (0 - 100).
+ * - Members at exactly BMI 22.0 receive 100.
+ * - Members within normal WHO range (18.5 - 24.9) receive 85 - 100.
+ * - Scores decay smoothly outside the healthy range based on distance.
+ */
+export function calculateIdealProximityScore(currentWeightKg: number, heightCm: number): number {
+  if (!heightCm || heightCm <= 0 || !currentWeightKg || currentWeightKg <= 0) return 50;
+  const idealKg = calculateIdealWeight(heightCm);
+  if (idealKg <= 0) return 50;
+
+  const diffKg = Math.abs(currentWeightKg - idealKg);
+  const healthyRange = getHealthyWeightRange(heightCm);
+
+  if (currentWeightKg >= healthyRange.minKg && currentWeightKg <= healthyRange.maxKg) {
+    const maxSpan = Math.max(idealKg - healthyRange.minKg, healthyRange.maxKg - idealKg);
+    const penalty = maxSpan > 0 ? (diffKg / maxSpan) * 15 : 0;
+    return Math.round((100 - penalty) * 10) / 10;
+  }
+
+  const boundaryDiff = currentWeightKg > healthyRange.maxKg
+    ? currentWeightKg - healthyRange.maxKg
+    : healthyRange.minKg - currentWeightKg;
+
+  const score = Math.max(0, 85 - boundaryDiff * 2.5);
+  return Math.round(score * 10) / 10;
+}
+
+/**
+ * Direction-aware goal progress percentage (0 - 100%).
+ * Accurately rewards cutting, bulking, and maintaining.
+ */
+export function calculateGoalProgress(
+  startingWeightKg: number,
+  currentWeightKg: number,
+  targetWeightKg: number,
+  goalType: GoalType
+): number {
+  if (goalType === "cutting") {
+    const span = startingWeightKg - targetWeightKg;
+    if (span <= 0) return 100;
+    const lost = startingWeightKg - currentWeightKg;
+    if (lost <= 0) return 0;
+    return Math.min(100, Math.round((lost / span) * 1000) / 10);
+  }
+
+  if (goalType === "bulking") {
+    const span = targetWeightKg - startingWeightKg;
+    if (span <= 0) return 100;
+    const gained = currentWeightKg - startingWeightKg;
+    if (gained <= 0) return 0;
+    return Math.min(100, Math.round((gained / span) * 1000) / 10);
+  }
+
+  // Maintaining: reward remaining within +/- 0.5kg of target
+  const diff = Math.abs(currentWeightKg - targetWeightKg);
+  if (diff <= 0.5) return 100;
+  return Math.max(0, Math.round((100 - (diff - 0.5) * 20) * 10) / 10);
+}
+
+/**
+ * Calculates Composite Elemen 2 Index (0 - 100 pts).
+ * - 45% Goal Progress (Journey execution)
+ * - 35% Ideal Biometric Proximity (BMI 22.0 bullseye)
+ * - 20% Consistency Streak (Habit discipline)
+ */
+export function calculateCompositeScore(
+  goalProgressPercent: number,
+  idealProximityScore: number,
+  streakWeeks: number
+): { compositeScore: number; streakScore: number } {
+  // 4 weeks active streak gives maximum 100% streak score
+  const streakScore = Math.min(100, streakWeeks * 25);
+  const composite = (goalProgressPercent * 0.45) + (idealProximityScore * 0.35) + (streakScore * 0.20);
+  return {
+    compositeScore: Math.round(composite * 10) / 10,
+    streakScore,
+  };
 }
 
 /**
@@ -201,17 +349,30 @@ export function calculateMemberInsight(member: Member, allLogs: WeightLog[]): Me
   const startingWeightKg = member.startingWeightKg;
   const targetWeightKg = member.targetWeightKg;
   const totalLossKg = Math.round((startingWeightKg - currentWeightKg) * 10) / 10;
+  const netChangeKg = Math.round((currentWeightKg - startingWeightKg) * 10) / 10;
   
   const percentLoss = startingWeightKg > 0 
     ? Math.round(((startingWeightKg - currentWeightKg) / startingWeightKg) * 1000) / 10
     : 0;
 
+  // Goal type determination
+  const goalType = determineGoalType(startingWeightKg, targetWeightKg, member.goalType);
+  const goalProgressPercent = calculateGoalProgress(startingWeightKg, currentWeightKg, targetWeightKg, goalType);
+  const distanceToTargetKg = Math.round(Math.abs(currentWeightKg - targetWeightKg) * 10) / 10;
+
+  // Ideal weight metrics (WHO BMI 22.0)
+  const idealWeightKg = calculateIdealWeight(member.heightCm);
+  const distanceToIdealKg = idealWeightKg > 0
+    ? Math.round(Math.abs(currentWeightKg - idealWeightKg) * 10) / 10
+    : 0;
+  const idealProximityScore = calculateIdealProximityScore(currentWeightKg, member.heightCm);
+
+  // Legacy compatibility fields
   const goalSpan = startingWeightKg - targetWeightKg;
   const percentToGoal = goalSpan > 0
     ? Math.min(100, Math.max(0, Math.round((totalLossKg / goalSpan) * 1000) / 10))
-    : 0;
-
-  const remainingToGoalKg = Math.max(0, Math.round((currentWeightKg - targetWeightKg) * 10) / 10);
+    : goalProgressPercent;
+  const remainingToGoalKg = distanceToTargetKg;
 
   const currentBmi = calculateBmi(currentWeightKg, member.heightCm);
   const startingBmi = calculateBmi(startingWeightKg, member.heightCm);
@@ -242,8 +403,8 @@ export function calculateMemberInsight(member: Member, allLogs: WeightLog[]): Me
 
   // Projection
   let projectedWeeksToGoal: number | null = null;
-  if (remainingToGoalKg > 0 && weeklyRateKg > 0.1) {
-    projectedWeeksToGoal = Math.ceil(remainingToGoalKg / weeklyRateKg);
+  if (distanceToTargetKg > 0 && Math.abs(weeklyRateKg) > 0.1) {
+    projectedWeeksToGoal = Math.ceil(distanceToTargetKg / Math.abs(weeklyRateKg));
   }
 
   const lastWeighInDate = memberLogs.length > 0
@@ -252,6 +413,7 @@ export function calculateMemberInsight(member: Member, allLogs: WeightLog[]): Me
 
   const streakWeeks = calculateStreakWeeks(memberLogs);
   const movingAverage7d = calculate7DayMovingAverage(memberLogs);
+  const { compositeScore, streakScore } = calculateCompositeScore(goalProgressPercent, idealProximityScore, streakWeeks);
 
   return {
     member,
@@ -262,6 +424,15 @@ export function calculateMemberInsight(member: Member, allLogs: WeightLog[]): Me
     percentLoss,
     percentToGoal,
     remainingToGoalKg,
+    goalType,
+    netChangeKg,
+    idealWeightKg,
+    distanceToIdealKg,
+    idealProximityScore,
+    distanceToTargetKg,
+    goalProgressPercent,
+    streakScore,
+    compositeScore,
     heightCm: member.heightCm,
     currentBmi,
     startingBmi,
@@ -295,6 +466,10 @@ export function calculateCohortSummary(members: Member[], logs: WeightLog[]): Co
       collectiveStartKg: 0,
       progressPercent: 0,
       topPerformerId: null,
+      cuttingCount: 0,
+      bulkingCount: 0,
+      maintainingCount: 0,
+      averageCompositeScore: 0,
     };
   }
 
@@ -329,13 +504,21 @@ export function calculateCohortSummary(members: Member[], logs: WeightLog[]): Co
     ? Math.round((avgInitialBmi - avgCurrentBmi) * 10) / 10
     : 0;
 
-  const totalGoalDelta = collectiveStartKg - collectiveTargetKg;
-  const progressPercent = totalGoalDelta > 0
-    ? Math.min(100, Math.max(0, Math.round((totalLossKg / totalGoalDelta) * 1000) / 10))
+  const cuttingCount = insights.filter((i) => i.goalType === "cutting").length;
+  const bulkingCount = insights.filter((i) => i.goalType === "bulking").length;
+  const maintainingCount = insights.filter((i) => i.goalType === "maintaining").length;
+
+  const averageCompositeScore = insights.length > 0
+    ? Math.round((insights.reduce((acc, curr) => acc + curr.compositeScore, 0) / insights.length) * 10) / 10
     : 0;
 
-  // Rank top performer by % body weight lost
-  const sorted = [...insights].sort((a, b) => b.percentLoss - a.percentLoss);
+  // Average goal progress across cohort
+  const progressPercent = insights.length > 0
+    ? Math.round((insights.reduce((acc, curr) => acc + curr.goalProgressPercent, 0) / insights.length) * 10) / 10
+    : 0;
+
+  // Rank top performer by highest composite Elemen 2 score
+  const sorted = [...insights].sort((a, b) => b.compositeScore - a.compositeScore);
   const topPerformerId = sorted.length > 0 ? sorted[0].member.id : null;
 
   return {
@@ -350,6 +533,10 @@ export function calculateCohortSummary(members: Member[], logs: WeightLog[]): Co
     collectiveStartKg,
     progressPercent,
     topPerformerId,
+    cuttingCount,
+    bulkingCount,
+    maintainingCount,
+    averageCompositeScore,
   };
 }
 

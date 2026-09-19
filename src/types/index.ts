@@ -7,6 +7,8 @@ export type BMICategory =
   | "Obese Class III"
   | "Pending";
 
+export type GoalType = "cutting" | "bulking" | "maintaining";
+
 export interface Member {
   id: string;
   name: string;
@@ -15,6 +17,7 @@ export interface Member {
   heightCm: number; // Height in cm (0 if pending measurement)
   startingWeightKg: number;
   targetWeightKg: number;
+  goalType?: GoalType; // Optional explicit goal type override
   joinDate: string; // ISO date string (YYYY-MM-DD)
   notes?: string;
 }
@@ -37,6 +40,16 @@ export interface MemberInsight {
   percentLoss: number;
   percentToGoal: number;
   remainingToGoalKg: number;
+  // Goal-aware and holistic metrics
+  goalType: GoalType;
+  netChangeKg: number; // current - starting (positive if gained, negative if lost)
+  idealWeightKg: number; // WHO BMI 22.0 for member's height
+  distanceToIdealKg: number; // |currentWeight - idealWeight|
+  idealProximityScore: number; // 0-100 score for proximity to BMI 22.0
+  distanceToTargetKg: number; // |currentWeight - targetWeight|
+  goalProgressPercent: number; // Direction-aware 0-100% progress
+  streakScore: number; // 0-100 score based on consistency
+  compositeScore: number; // 0-100 Elemen 2 Index
   heightCm: number;
   currentBmi: number;
   startingBmi: number;
@@ -67,6 +80,11 @@ export interface CohortSummary {
   collectiveStartKg: number;
   progressPercent: number;
   topPerformerId: string | null;
+  // Goal breakdown
+  cuttingCount: number;
+  bulkingCount: number;
+  maintainingCount: number;
+  averageCompositeScore: number;
 }
 
 export type UnitPreference = "kg" | "lbs";

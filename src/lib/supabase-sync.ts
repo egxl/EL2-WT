@@ -13,6 +13,7 @@ export interface DbMember {
   height_cm: number;
   starting_weight_kg: number;
   target_weight_kg: number;
+  goal_type?: string | null;
   join_date: string;
   notes: string | null;
 }
@@ -35,6 +36,7 @@ export function toDbMember(m: Member): DbMember {
     height_cm: Number(m.heightCm) || 0,
     starting_weight_kg: Number(m.startingWeightKg) || 0,
     target_weight_kg: Number(m.targetWeightKg) || 0,
+    goal_type: m.goalType || null,
     join_date: m.joinDate,
     notes: m.notes || null,
   };
@@ -49,6 +51,7 @@ export function fromDbMember(row: any): Member {
     heightCm: Number(row.height_cm ?? row.heightCm ?? 0),
     startingWeightKg: Number(row.starting_weight_kg ?? row.startingWeightKg ?? 0),
     targetWeightKg: Number(row.target_weight_kg ?? row.targetWeightKg ?? 0),
+    goalType: (row.goal_type ?? row.goalType ?? undefined) || undefined,
     joinDate: String(row.join_date ?? row.joinDate ?? new Date().toISOString().split("T")[0]),
     notes: row.notes || undefined,
   };

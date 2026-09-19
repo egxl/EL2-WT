@@ -5,15 +5,29 @@ import Link from "next/link";
 import { TopBar } from "@/components/layout/TopBar";
 import { FluidBottomNav } from "@/components/layout/FluidBottomNav";
 import { getMembers, getWeightLogs, getUnitPreference, subscribeToStorage } from "@/lib/storage";
-import { calculateMemberInsight, formatWeight } from "@/lib/biometrics";
-import { Member, WeightLog, UnitPreference, MemberInsight } from "@/types";
-import { Trophy, Medal, Fire, CaretRight, Crown } from "@phosphor-icons/react";
+import { calculateMemberInsight, formatWeight, getGoalTypeDetails } from "@/lib/biometrics";
+import { Member, WeightLog, UnitPreference, MemberInsight, GoalType } from "@/types";
+import {
+  Trophy,
+  Fire,
+  CaretRight,
+  Crown,
+  Target,
+  Sparkle,
+  Heartbeat,
+  CheckCircle,
+  Funnel,
+} from "@phosphor-icons/react";
+
+type SortTab = "overall" | "target" | "ideal" | "streak";
+type CategoryFilter = "all" | GoalType;
 
 export default function LeaderboardPage() {
   const [members, setMembers] = useState<Member[]>([]);
   const [logs, setLogs] = useState<WeightLog[]>([]);
   const [unit, setUnit] = useState<UnitPreference>("kg");
-  const [sortBy, setSortBy] = useState<"percent" | "absolute">("percent");
+  const [activeTab, setActiveTab] = useState<SortTab>("overall");
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
 
   const loadData = () => {
     setMembers(getMembers());
@@ -26,66 +40,211 @@ export default function LeaderboardPage() {
     return subscribeToStorage(() => loadData());
   }, []);
 
-  const insights = members.map((m) => calculateMemberInsight(m, logs));
+  const allInsights = members.map((m) => calculateMemberInsight(m, logs));
 
-  // Sort by selected criteria
-  const ranked = [...insights].sort((a, b) => {
-    if (sortBy === "percent") {
-      return b.percentLoss - a.percentLoss;
+  // Filter by category
+  const filteredInsights = allInsights.filter((insight) => {
+    if (categoryFilter === "all") return true;
+    return insight.goalType === categoryFilter;
+  });
+
+  // Sort according to activeTab
+  const ranked = [...filteredInsights].sort((a, b) => {
+    if (activeTab === "overall") {
+      // Highest composite score first
+      return b.compositeScore - a.compositeScore;
     }
-    return b.totalLossKg - a.totalLossKg;
+    if (activeTab === "target") {
+      // Closest to desired target weight first
+      if (a.distanceToTargetKg !== b.distanceToTargetKg) {
+        return a.distanceToTargetKg - b.distanceToTargetKg;
+      }
+      return b.goalProgressPercent - a.goalProgressPercent;
+    }
+    if (activeTab === "ideal") {
+      // Closest to WHO BMI 22.0 ideal weight first
+      if (a.distanceToIdealKg !== b.distanceToIdealKg) {
+        return a.distanceToIdealKg - b.distanceToIdealKg;
+      }
+      return b.idealProximityScore - a.idealProximityScore;
+    }
+    if (activeTab === "streak") {
+      // Longest streak first
+      if (b.streakWeeks !== a.streakWeeks) {
+        return b.streakWeeks - a.streakWeeks;
+      }
+      return b.historyCount - a.historyCount;
+    }
+    return 0;
   });
 
   const top1 = ranked[0];
   const top2 = ranked[1];
   const top3 = ranked[2];
 
+  // Helper for rendering the primary metric on the podium
+  const renderPodiumMetric = (ins: MemberInsight) => {
+    switch (activeTab) {
+      case "overall":
+        return `${ins.compositeScore} pts`;
+      case "target":
+        return ins.distanceToTargetKg === 0 ? "Goal met!" : `${formatWeight(ins.distanceToTargetKg, unit)} left`;
+      case "ideal":
+        return ins.distanceToIdealKg === 0 ? "Ideal weight" : `±${formatWeight(ins.distanceToIdealKg, unit)}`;
+      case "streak":
+        return `${ins.streakWeeks}w streak`;
+    }
+  };
+
+  // Helper for rendering secondary metric on the podium
+  const renderPodiumSub = (ins: MemberInsight) => {
+    switch (activeTab) {
+      case "overall":
+        return `${ins.goalProgressPercent}% goal • BMI ${ins.currentBmi}`;
+      case "target":
+        return `${ins.goalProgressPercent}% progress`;
+      case "ideal":
+        return `BMI ${ins.currentBmi} (Ideal 22.0)`;
+      case "streak":
+        return `${ins.historyCount} weigh-ins`;
+    }
+  };
+
   return (
     <main className="flex-1 flex flex-col pb-28">
       <TopBar />
 
-      <div className="px-4 py-4 space-y-5">
-        {/* Header & Toggle */}
+      <div className="px-4 py-4 space-y-4">
+        {/* Page Title & Mission */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
               <Trophy size={22} className="text-amber-400" weight="fill" />
               <span>Elemen 2 Standings</span>
             </h1>
-            <p className="text-xs text-slate-400 mt-0.5">Transparent group progress & rankings</p>
-          </div>
-
-          {/* Metric Sort Toggle */}
-          <div className="p-1 rounded-xl bg-white/5 border border-white/10 flex text-[11px] font-semibold">
-            <button
-              onClick={() => setSortBy("percent")}
-              className={`px-2.5 py-1 rounded-lg transition-all ${
-                sortBy === "percent"
-                  ? "bg-amber-500 text-slate-950 font-bold shadow-sm"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              % Lost
-            </button>
-            <button
-              onClick={() => setSortBy("absolute")}
-              className={`px-2.5 py-1 rounded-lg transition-all ${
-                sortBy === "absolute"
-                  ? "bg-amber-500 text-slate-950 font-bold shadow-sm"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              Total kg
-            </button>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Rewarding goal progress, ideal health, and consistency
+            </p>
           </div>
         </div>
 
-        {/* Podium for Top 3 (if at least 3 members) */}
+        {/* Primary Leaderboard Sort Switcher Tabs */}
+        <div className="grid grid-cols-4 gap-1 p-1 rounded-2xl bg-white/[0.04] border border-white/10 text-[11px] font-bold">
+          <button
+            onClick={() => setActiveTab("overall")}
+            className={`py-2 px-1 rounded-xl transition-all flex flex-col items-center gap-0.5 text-center ${
+              activeTab === "overall"
+                ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20"
+                : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <Sparkle size={15} weight={activeTab === "overall" ? "fill" : "regular"} />
+            <span className="truncate w-full">Overall Index</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("target")}
+            className={`py-2 px-1 rounded-xl transition-all flex flex-col items-center gap-0.5 text-center ${
+              activeTab === "target"
+                ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20"
+                : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <Target size={15} weight={activeTab === "target" ? "fill" : "regular"} />
+            <span className="truncate w-full">Target Goal</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("ideal")}
+            className={`py-2 px-1 rounded-xl transition-all flex flex-col items-center gap-0.5 text-center ${
+              activeTab === "ideal"
+                ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20"
+                : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <Heartbeat size={15} weight={activeTab === "ideal" ? "fill" : "regular"} />
+            <span className="truncate w-full">Ideal Weight</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("streak")}
+            className={`py-2 px-1 rounded-xl transition-all flex flex-col items-center gap-0.5 text-center ${
+              activeTab === "streak"
+                ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20"
+                : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <Fire size={15} weight={activeTab === "streak" ? "fill" : "regular"} />
+            <span className="truncate w-full">Streak</span>
+          </button>
+        </div>
+
+        {/* Goal Category Filter Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
+          <button
+            onClick={() => setCategoryFilter("all")}
+            className={`px-3 py-1.5 rounded-xl border text-xs font-semibold shrink-0 transition-all ${
+              categoryFilter === "all"
+                ? "bg-white/20 border-white/40 text-white shadow-sm"
+                : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"
+            }`}
+          >
+            All Members ({allInsights.length})
+          </button>
+
+          <button
+            onClick={() => setCategoryFilter("cutting")}
+            className={`px-2.5 py-1.5 rounded-xl border text-xs font-semibold shrink-0 transition-all flex items-center gap-1 ${
+              categoryFilter === "cutting"
+                ? "bg-rose-500/20 border-rose-500/50 text-rose-300 shadow-sm shadow-rose-500/20"
+                : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"
+            }`}
+          >
+            <span>🔥</span>
+            <span>Cutting ({allInsights.filter((i) => i.goalType === "cutting").length})</span>
+          </button>
+
+          <button
+            onClick={() => setCategoryFilter("bulking")}
+            className={`px-2.5 py-1.5 rounded-xl border text-xs font-semibold shrink-0 transition-all flex items-center gap-1 ${
+              categoryFilter === "bulking"
+                ? "bg-indigo-500/20 border-indigo-500/50 text-indigo-300 shadow-sm shadow-indigo-500/20"
+                : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"
+            }`}
+          >
+            <span>💪</span>
+            <span>Bulking ({allInsights.filter((i) => i.goalType === "bulking").length})</span>
+          </button>
+
+          <button
+            onClick={() => setCategoryFilter("maintaining")}
+            className={`px-2.5 py-1.5 rounded-xl border text-xs font-semibold shrink-0 transition-all flex items-center gap-1 ${
+              categoryFilter === "maintaining"
+                ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 shadow-sm shadow-emerald-500/20"
+                : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"
+            }`}
+          >
+            <span>⚖️</span>
+            <span>Maintaining ({allInsights.filter((i) => i.goalType === "maintaining").length})</span>
+          </button>
+        </div>
+
+        {/* Dynamic Context Banner */}
+        <div className="px-3 py-2 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between text-[11px] text-slate-400">
+          <span className="flex items-center gap-1.5">
+            {activeTab === "overall" && <span>⭐ <strong>Elemen 2 Index</strong>: 45% Goal + 35% Ideal BMI + 20% Streak</span>}
+            {activeTab === "target" && <span>🎯 Ranked by closest distance to personal desired goal</span>}
+            {activeTab === "ideal" && <span>🌱 Ranked by closest weight to height-calibrated BMI 22.0</span>}
+            {activeTab === "streak" && <span>🔥 Ranked by weekly weigh-in consistency & habit streak</span>}
+          </span>
+        </div>
+
+        {/* Podium for Top 3 */}
         {ranked.length >= 3 && (
           <div className="bezel-outer">
             <div className="bezel-inner p-4 bg-gradient-to-b from-amber-500/10 via-[#0D1117] to-[#0D1117]">
               <span className="text-[10px] uppercase tracking-wider font-bold text-amber-400 block text-center mb-3">
-                🏆 Group Podium
+                🏆 Podium ({categoryFilter === "all" ? "Cohort" : categoryFilter})
               </span>
 
               <div className="grid grid-cols-3 gap-2 items-end pt-2 text-center">
@@ -97,11 +256,14 @@ export default function LeaderboardPage() {
                       2
                     </span>
                   </div>
-                  <span className="text-xs font-bold text-white mt-1.5 truncate max-w-[80px]">
+                  <span className="text-xs font-bold text-white mt-1.5 truncate max-w-[85px]">
                     {top2.member.name}
                   </span>
-                  <span className="text-[11px] font-extrabold text-emerald-400">
-                    {sortBy === "percent" ? `${top2.percentLoss}%` : formatWeight(top2.totalLossKg, unit)}
+                  <span className="text-[11px] font-extrabold text-amber-300">
+                    {renderPodiumMetric(top2)}
+                  </span>
+                  <span className="text-[10px] text-slate-400 truncate max-w-[85px]">
+                    {renderPodiumSub(top2)}
                   </span>
                 </Link>
 
@@ -114,11 +276,14 @@ export default function LeaderboardPage() {
                       1
                     </span>
                   </div>
-                  <span className="text-xs font-bold text-amber-300 mt-1.5 truncate max-w-[90px]">
+                  <span className="text-xs font-bold text-amber-300 mt-1.5 truncate max-w-[95px]">
                     {top1.member.name}
                   </span>
                   <span className="text-xs font-black text-emerald-400">
-                    {sortBy === "percent" ? `${top1.percentLoss}%` : formatWeight(top1.totalLossKg, unit)}
+                    {renderPodiumMetric(top1)}
+                  </span>
+                  <span className="text-[10px] text-slate-300 truncate max-w-[95px]">
+                    {renderPodiumSub(top1)}
                   </span>
                 </Link>
 
@@ -130,11 +295,14 @@ export default function LeaderboardPage() {
                       3
                     </span>
                   </div>
-                  <span className="text-xs font-bold text-white mt-1.5 truncate max-w-[80px]">
+                  <span className="text-xs font-bold text-white mt-1.5 truncate max-w-[85px]">
                     {top3.member.name}
                   </span>
-                  <span className="text-[11px] font-extrabold text-emerald-400">
-                    {sortBy === "percent" ? `${top3.percentLoss}%` : formatWeight(top3.totalLossKg, unit)}
+                  <span className="text-[11px] font-extrabold text-amber-300">
+                    {renderPodiumMetric(top3)}
+                  </span>
+                  <span className="text-[10px] text-slate-400 truncate max-w-[85px]">
+                    {renderPodiumSub(top3)}
                   </span>
                 </Link>
               </div>
@@ -144,18 +312,23 @@ export default function LeaderboardPage() {
 
         {/* Full Leaderboard Table */}
         <div className="space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-            Full Leaderboard Rankings
-          </span>
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Rankings ({ranked.length})
+            </span>
+            <span className="text-[11px] text-slate-400">
+              Sorted by {activeTab === "overall" ? "Elemen 2 Index" : activeTab === "target" ? "Target Proximity" : activeTab === "ideal" ? "Ideal Proximity" : "Streak"}
+            </span>
+          </div>
 
           <div className="space-y-2">
             {ranked.map((insight, index) => {
-              const isTop = index === 0;
+              const goalDetails = getGoalTypeDetails(insight.goalType);
               return (
                 <Link
                   key={insight.member.id}
                   href={`/member/${insight.member.id}`}
-                  className="flex items-center justify-between p-3.5 rounded-2xl bg-white/5 hover:bg-white/10 active:scale-[0.99] border border-white/5 transition-all group"
+                  className="flex items-center justify-between p-3 rounded-2xl bg-white/5 hover:bg-white/10 active:scale-[0.99] border border-white/5 transition-all group"
                 >
                   <div className="flex items-center gap-3">
                     {/* Rank Badge */}
@@ -182,38 +355,102 @@ export default function LeaderboardPage() {
                     </div>
 
                     <div>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors">
                           {insight.member.name}
                         </span>
+
+                        {/* Goal Tag Pill */}
+                        <span className={`text-[10px] font-semibold px-1.5 py-0.2 rounded border flex items-center gap-0.5 ${goalDetails.badgeBg} ${goalDetails.badgeText}`}>
+                          <span>{goalDetails.icon}</span>
+                          <span>{goalDetails.label}</span>
+                        </span>
+
                         {insight.streakWeeks >= 3 && (
-                          <Fire size={13} weight="fill" className="text-amber-400" />
+                          <span className="flex items-center gap-0.5 text-[10px] text-amber-400 font-bold">
+                            <Fire size={12} weight="fill" />
+                            <span>{insight.streakWeeks}w</span>
+                          </span>
                         )}
                       </div>
-                      <span className="text-[11px] text-slate-400">
-                        {formatWeight(insight.startingWeightKg, unit)} →{" "}
-                        <strong className="text-slate-200">{formatWeight(insight.currentWeightKg, unit)}</strong>
-                      </span>
+
+                      <div className="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
+                        <span>
+                          {formatWeight(insight.currentWeightKg, unit)}
+                        </span>
+                        <span>•</span>
+                        <span>
+                          Target: <strong className="text-slate-300">{formatWeight(insight.targetWeightKg, unit)}</strong>
+                        </span>
+                        {insight.member.heightCm > 0 && (
+                          <>
+                            <span>•</span>
+                            <span>Ideal: {formatWeight(insight.idealWeightKg, unit)}</span>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Metrics & Delta */}
+                  {/* Primary Metric based on active tab */}
                   <div className="flex items-center gap-2 text-right">
                     <div>
-                      <span className="text-sm font-extrabold text-emerald-400 block tabular-nums">
-                        {sortBy === "percent"
-                          ? `-${insight.percentLoss}%`
-                          : `-${formatWeight(insight.totalLossKg, unit)}`}
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        BMI {insight.currentBmi}
-                      </span>
+                      {activeTab === "overall" && (
+                        <>
+                          <span className="text-sm font-black text-amber-400 block tabular-nums">
+                            {insight.compositeScore} <span className="text-[10px] font-normal text-slate-400">pts</span>
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-medium">
+                            {insight.goalProgressPercent}% goal • BMI {insight.currentBmi}
+                          </span>
+                        </>
+                      )}
+
+                      {activeTab === "target" && (
+                        <>
+                          <span className="text-sm font-extrabold text-emerald-400 block tabular-nums">
+                            {insight.distanceToTargetKg === 0 ? "Goal Met!" : `${formatWeight(insight.distanceToTargetKg, unit)}`}
+                          </span>
+                          <span className="text-[10px] text-slate-400">
+                            {insight.goalProgressPercent}% reached
+                          </span>
+                        </>
+                      )}
+
+                      {activeTab === "ideal" && (
+                        <>
+                          <span className="text-sm font-extrabold text-cyan-400 block tabular-nums">
+                            {insight.distanceToIdealKg === 0 ? "Ideal Bullseye" : `±${formatWeight(insight.distanceToIdealKg, unit)}`}
+                          </span>
+                          <span className="text-[10px] text-slate-400">
+                            BMI {insight.currentBmi} ({insight.idealProximityScore}%)
+                          </span>
+                        </>
+                      )}
+
+                      {activeTab === "streak" && (
+                        <>
+                          <span className="text-sm font-extrabold text-amber-400 block tabular-nums">
+                            {insight.streakWeeks} weeks
+                          </span>
+                          <span className="text-[10px] text-slate-400">
+                            {insight.historyCount} weigh-ins
+                          </span>
+                        </>
+                      )}
                     </div>
+
                     <CaretRight size={14} className="text-slate-500 group-hover:text-amber-400 transition-colors" />
                   </div>
                 </Link>
               );
             })}
+
+            {ranked.length === 0 && (
+              <div className="p-8 text-center rounded-2xl bg-white/5 border border-white/5 text-slate-400 text-xs">
+                No members found in this category.
+              </div>
+            )}
           </div>
         </div>
       </div>

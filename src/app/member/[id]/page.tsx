@@ -12,10 +12,10 @@ import { LogWeightModal } from "@/components/modals/LogWeightModal";
 import { MemberModal } from "@/components/modals/MemberModal";
 import { MaintainerAuthModal } from "@/components/modals/MaintainerAuthModal";
 import { getMemberById, getMemberWeightLogs, getUnitPreference, deleteWeightLog, subscribeToStorage } from "@/lib/storage";
-import { calculateMemberInsight, formatWeight, calculateBmi } from "@/lib/biometrics";
+import { calculateMemberInsight, formatWeight, calculateBmi, getGoalTypeDetails } from "@/lib/biometrics";
 import { isMaintainerUnlocked, subscribeToAuthChanges } from "@/lib/auth";
 import { Member, WeightLog, UnitPreference } from "@/types";
-import { CaretLeft, Plus, PencilSimple, Trash, Fire, CalendarBlank, Target } from "@phosphor-icons/react";
+import { CaretLeft, Plus, PencilSimple, Trash, Fire, CalendarBlank, Target, Sparkle } from "@phosphor-icons/react";
 
 export default function MemberDetailPage() {
   const params = useParams();
@@ -149,14 +149,26 @@ export default function MemberDetailPage() {
           <div className="bezel-inner p-5 space-y-4">
             <div className="flex items-center gap-4">
               <div
-                className="w-16 h-16 rounded-2xl flex items-center justify-center font-black text-slate-950 text-2xl shadow-xl shadow-black"
+                className="w-16 h-16 rounded-2xl flex items-center justify-center font-black text-slate-950 text-2xl shadow-xl shadow-black shrink-0"
                 style={{ backgroundColor: member.color || "#F59E0B" }}
               >
                 {member.avatar || member.name[0]}
               </div>
               <div className="flex-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h1 className="text-xl font-extrabold text-white">{member.name}</h1>
+                  
+                  {/* Goal Badge */}
+                  {(() => {
+                    const goalDetails = getGoalTypeDetails(insight.goalType);
+                    return (
+                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded-lg border flex items-center gap-1 ${goalDetails.badgeBg} ${goalDetails.badgeText}`}>
+                        <span>{goalDetails.icon}</span>
+                        <span>{goalDetails.label}</span>
+                      </span>
+                    );
+                  })()}
+
                   {insight.streakWeeks >= 3 && (
                     <span className="flex items-center gap-1 text-[10px] font-bold text-amber-400 px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/20">
                       <Fire size={13} weight="fill" />
@@ -164,7 +176,7 @@ export default function MemberDetailPage() {
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-2 text-xs text-slate-400 mt-1">
+                <div className="flex items-center gap-2 text-xs text-slate-400 mt-1 flex-wrap">
                   <span>
                     Height:{" "}
                     <strong className="text-cyan-400 font-bold">
@@ -173,6 +185,11 @@ export default function MemberDetailPage() {
                   </span>
                   <span>•</span>
                   <span>{insight.historyCount} weigh-ins</span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1 text-amber-300 font-semibold">
+                    <Sparkle size={12} weight="fill" />
+                    <span>Elemen 2 Index: <strong>{insight.compositeScore}</strong> pts</span>
+                  </span>
                 </div>
                 {member.notes && (
                   <p className="text-xs text-slate-300 italic mt-1.5">"{member.notes}"</p>
@@ -180,8 +197,8 @@ export default function MemberDetailPage() {
               </div>
             </div>
 
-            {/* Quick Metrics Grid */}
-            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/5 text-center">
+            {/* Quick Metrics Grid (4 columns) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-white/5 text-center">
               <div className="p-2.5 rounded-xl bg-white/5">
                 <span className="text-[10px] text-slate-400 block mb-0.5">Start</span>
                 <span className="text-xs font-bold text-slate-300 tabular-nums">
@@ -195,11 +212,21 @@ export default function MemberDetailPage() {
                 </span>
               </div>
               <div className="p-2.5 rounded-xl bg-white/5">
-                <span className="text-[10px] text-slate-400 block mb-0.5">Target</span>
+                <span className="text-[10px] text-slate-400 block mb-0.5">Target Goal</span>
                 <span className="text-xs font-bold text-slate-300 tabular-nums">
-                  {insight.targetWeightKg > 0 && insight.targetWeightKg !== insight.startingWeightKg
-                    ? formatWeight(insight.targetWeightKg, unit)
-                    : "TBD"}
+                  {formatWeight(insight.targetWeightKg, unit)}
+                </span>
+                <span className="text-[10px] text-emerald-400 block mt-0.5">
+                  {insight.distanceToTargetKg === 0 ? "Goal Met!" : `${formatWeight(insight.distanceToTargetKg, unit)} left`}
+                </span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                <span className="text-[10px] text-cyan-400 font-bold block mb-0.5">Ideal (BMI 22.0)</span>
+                <span className="text-xs font-extrabold text-cyan-200 tabular-nums">
+                  {insight.idealWeightKg > 0 ? formatWeight(insight.idealWeightKg, unit) : "Pending"}
+                </span>
+                <span className="text-[10px] text-slate-400 block mt-0.5">
+                  {insight.distanceToIdealKg === 0 ? "Bullseye" : `±${formatWeight(insight.distanceToIdealKg, unit)}`}
                 </span>
               </div>
             </div>
