@@ -452,6 +452,99 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        {/* Cloud Database (Supabase) Card */}
+        <div className="bezel-outer">
+          <div className="bezel-inner p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {isCloudActive ? (
+                  <CloudCheck size={18} className="text-emerald-400" weight="fill" />
+                ) : (
+                  <CloudWarning size={18} className="text-amber-400" weight="fill" />
+                )}
+                <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                  Cloud Database (Supabase)
+                </h3>
+              </div>
+              <span
+                className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                  isCloudActive
+                    ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                    : "bg-amber-500/15 text-amber-400 border-amber-500/30"
+                }`}
+              >
+                {isCloudActive ? "Realtime Active" : "Local Storage Only"}
+              </span>
+            </div>
+
+            {isCloudActive ? (
+              <div className="space-y-3">
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Connected to Supabase. Weigh-ins and roster modifications automatically sync across all cohort members&apos; devices in real time.
+                </p>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={handlePullFromCloud}
+                    disabled={cloudSyncing}
+                    className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white transition-all disabled:opacity-50"
+                  >
+                    <CloudArrowDown size={16} />
+                    <span>{cloudSyncing ? "Syncing..." : "Pull Cloud"}</span>
+                  </button>
+                  <button
+                    onClick={handlePushToCloud}
+                    disabled={cloudSyncing}
+                    className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white transition-all disabled:opacity-50"
+                  >
+                    <CloudArrowUp size={16} />
+                    <span>{cloudSyncing ? "Syncing..." : "Push Local"}</span>
+                  </button>
+                </div>
+
+                {cloudSyncStatus && (
+                  <p
+                    className={`text-xs font-medium ${
+                      cloudSyncStatus.success ? "text-emerald-400" : "text-rose-400"
+                    }`}
+                  >
+                    {cloudSyncStatus.message}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Your data is currently stored in this browser&apos;s local memory. To sync live across all group members&apos; phones:
+                </p>
+                <ol className="text-[11px] text-slate-400 space-y-1 list-decimal list-inside pl-1">
+                  <li>Create a free project at <span className="text-amber-400 font-medium">supabase.com</span>.</li>
+                  <li>Run <code className="text-amber-300 font-mono">supabase/schema.sql</code> in the Supabase SQL Editor.</li>
+                  <li>Add <code className="text-amber-300 font-mono">NEXT_PUBLIC_SUPABASE_URL</code> &amp; <code className="text-amber-300 font-mono">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to your environment variables (or Vercel).</li>
+                </ol>
+
+                <button
+                  type="button"
+                  onClick={() => setShowSqlGuide(!showSqlGuide)}
+                  className="text-xs text-amber-400 hover:text-amber-300 font-semibold pt-1 block underline underline-offset-2"
+                >
+                  {showSqlGuide ? "Hide Setup Instructions" : "View Supabase Quick Setup Steps"}
+                </button>
+
+                {showSqlGuide && (
+                  <div className="p-3 rounded-xl bg-slate-950 border border-white/10 space-y-2 text-[11px] text-slate-300 animate-in fade-in">
+                    <p className="font-semibold text-white">How to connect Supabase in 2 minutes:</p>
+                    <p>1. Open your project on <a href="https://supabase.com/dashboard" target="_blank" rel="noreferrer" className="text-amber-400 underline">supabase.com</a> $\rightarrow$ <strong>SQL Editor</strong> $\rightarrow$ <strong>New query</strong>.</p>
+                    <p>2. Copy the SQL from file <code className="text-amber-300 font-mono">supabase/schema.sql</code> and click <strong>Run</strong>.</p>
+                    <p>3. Go to <strong>Project Settings</strong> $\rightarrow$ <strong>API</strong>, copy your <strong>Project URL</strong> and <strong>anon public key</strong>.</p>
+                    <p>4. Put them into <code className="text-amber-300 font-mono">.env.local</code> locally or Vercel Environment Variables in production!</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Backup & Restore */}
         <div className="bezel-outer">
           <div className="bezel-inner p-4 space-y-3">
