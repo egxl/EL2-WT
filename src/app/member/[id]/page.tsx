@@ -302,6 +302,7 @@ export default function MemberDetailPage() {
           isOpen={showLogModal}
           onClose={() => setShowLogModal(false)}
           preselectedMemberId={member.id}
+          initialMode="single"
         />
       )}
 

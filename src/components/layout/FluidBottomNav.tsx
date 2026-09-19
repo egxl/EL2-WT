@@ -111,6 +111,7 @@ export function FluidBottomNav() {
         <LogWeightModal
           isOpen={showLogModal}
           onClose={() => setShowLogModal(false)}
+          initialMode="bulk"
         />
       )}
     </>

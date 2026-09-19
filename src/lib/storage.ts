@@ -116,6 +116,31 @@ export function addWeightLog(logData: Omit<WeightLog, "id">): WeightLog {
   return newLog;
 }
 
+export function addWeightLogs(logsData: Omit<WeightLog, "id">[]): WeightLog[] {
+  if (logsData.length === 0) return [];
+  const newLogs: WeightLog[] = logsData.map((data, index) => ({
+    ...data,
+    id: `log-${Date.now()}-${index}-${Math.random().toString(36).substring(2, 7)}`,
+  }));
+
+  const logs = getWeightLogs();
+  logs.push(...newLogs);
+
+  if (typeof window !== "undefined") {
+    localStorage.setItem(LOGS_KEY, JSON.stringify(logs));
+    emitChange();
+
+    if (isSupabaseConfigured()) {
+      newLogs.forEach((l) => {
+        pushWeightLogToCloud(l).catch((err) => {
+          console.warn("Async cloud weight log push failed:", err);
+        });
+      });
+    }
+  }
+  return newLogs;
+}
+
 export function updateWeightLog(updatedLog: WeightLog): void {
   if (typeof window === "undefined") return;
   const logs = getWeightLogs();

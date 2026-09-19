@@ -12,7 +12,7 @@ import { getMembers, getWeightLogs, getUnitPreference, subscribeToStorage } from
 import { calculateCohortSummary, calculateMemberInsight } from "@/lib/biometrics";
 import { isMaintainerUnlocked, subscribeToAuthChanges } from "@/lib/auth";
 import { Member, WeightLog, UnitPreference } from "@/types";
-import { Plus, UserPlus, Sparkle } from "@phosphor-icons/react";
+import { Plus, UserPlus, Sparkle, Users } from "@phosphor-icons/react";
 
 export default function HomePage() {
   const [members, setMembers] = useState<Member[]>([]);
@@ -22,6 +22,7 @@ export default function HomePage() {
 
   // Modal states
   const [showLogModal, setShowLogModal] = useState(false);
+  const [logMode, setLogMode] = useState<"bulk" | "single">("bulk");
   const [targetMemberId, setTargetMemberId] = useState<string | undefined>(undefined);
   const [showMemberModal, setShowMemberModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -48,8 +49,20 @@ export default function HomePage() {
   const cohortSummary = calculateCohortSummary(members, logs);
   const memberInsights = members.map((m) => calculateMemberInsight(m, logs));
 
+  const handleWeeklyBulkLog = () => {
+    setTargetMemberId(undefined);
+    setLogMode("bulk");
+    if (unlocked) {
+      setShowLogModal(true);
+    } else {
+      setPendingAction("log");
+      setShowAuthModal(true);
+    }
+  };
+
   const handleQuickLog = (memberId: string) => {
     setTargetMemberId(memberId);
+    setLogMode("single");
     if (unlocked) {
       setShowLogModal(true);
     } else {
@@ -85,22 +98,34 @@ export default function HomePage() {
         {/* Cohort Hero Banner */}
         <CohortHero summary={cohortSummary} unit={unit} />
 
-        {/* Section Header & Add Member Trigger */}
-        <div className="flex items-center justify-between pt-1">
+        {/* Weekly Weigh-In Maintainer Action Banner */}
+        <div className="flex items-center gap-2 pt-1">
+          <button
+            onClick={handleWeeklyBulkLog}
+            className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 active:scale-[0.98] transition-all"
+          >
+            <Users size={17} weight="bold" />
+            <span>Start Weekly Weigh-In Session</span>
+          </button>
+
+          <button
+            onClick={handleAddMember}
+            className="flex items-center gap-1.5 py-3 px-3.5 rounded-2xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-xs font-semibold text-slate-200 transition-all shrink-0"
+            title="Add Member"
+          >
+            <UserPlus size={15} className="text-amber-400" />
+            <span className="hidden sm:inline">Add Member</span>
+          </button>
+        </div>
+
+        {/* Section Header */}
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h2 className="text-base font-bold text-white tracking-tight">Elemen 2 Members</h2>
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">
               {members.length}
             </span>
           </div>
-
-          <button
-            onClick={handleAddMember}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-xs font-semibold text-slate-200 transition-all"
-          >
-            <UserPlus size={15} className="text-amber-400" />
-            <span>Add Member</span>
-          </button>
         </div>
 
         {/* Members Grid */}
@@ -139,6 +164,7 @@ export default function HomePage() {
             setTargetMemberId(undefined);
           }}
           preselectedMemberId={targetMemberId}
+          initialMode={logMode}
         />
       )}
 
