@@ -3,7 +3,7 @@
 import React from "react";
 import { CohortSummary, UnitPreference } from "@/types";
 import { formatWeight } from "@/lib/biometrics";
-import { Fire, Trophy, TrendDown, Users, Sparkle } from "@phosphor-icons/react";
+import { Fire, Trophy, TrendDown, Users, Sparkle, Barbell, Scales } from "@phosphor-icons/react";
 
 interface CohortHeroProps {
   summary: CohortSummary;
@@ -35,16 +35,16 @@ export function CohortHero({ summary, unit }: CohortHeroProps) {
 
       {/* Program Distribution Chips */}
       <div className="flex items-center gap-1.5 flex-wrap text-[11px] font-mono">
-        <span className="px-2 py-0.5 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-300 font-medium flex items-center gap-1">
-          <span>🔥</span>
+        <span className="px-2 py-0.5 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-300 font-medium flex items-center gap-1.5">
+          <Fire size={12} weight="fill" className="text-rose-400 shrink-0" />
           <span>{summary.cuttingCount} Cut</span>
         </span>
-        <span className="px-2 py-0.5 rounded-md bg-cobalt-500/10 border border-cobalt-500/20 text-cobalt-400 font-medium flex items-center gap-1">
-          <span>⚡</span>
+        <span className="px-2 py-0.5 rounded-md bg-cobalt-500/10 border border-cobalt-500/20 text-cobalt-400 font-medium flex items-center gap-1.5">
+          <Barbell size={12} weight="bold" className="text-cobalt-400 shrink-0" />
           <span>{summary.bulkingCount} Bulk</span>
         </span>
-        <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-medium flex items-center gap-1">
-          <span>⚖️</span>
+        <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-medium flex items-center gap-1.5">
+          <Scales size={12} weight="bold" className="text-emerald-400 shrink-0" />
           <span>{summary.maintainingCount} Maintain</span>
         </span>
       </div>

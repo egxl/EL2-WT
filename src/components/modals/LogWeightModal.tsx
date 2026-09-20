@@ -16,6 +16,10 @@ import {
   TrendDown,
   TrendUp,
   Sparkle,
+  Fire,
+  Lightning,
+  Scales,
+  Barbell,
 } from "@phosphor-icons/react";
 import { Member, UnitPreference } from "@/types";
 import {
@@ -60,6 +64,7 @@ export function LogWeightModal({
   const [singleWeightKg, setSingleWeightKg] = useState<number>(75.0);
   const [singleWeightStr, setSingleWeightStr] = useState<string>("75.0");
   const [singleNote, setSingleNote] = useState<string>("");
+  const [singleMood, setSingleMood] = useState<"great" | "good" | "steady" | "tough" | undefined>(undefined);
 
   // Bulk-log states
   const [bulkEntries, setBulkEntries] = useState<BulkMemberEntry[]>([]);
@@ -90,6 +95,8 @@ export function LogWeightModal({
       const initialWt = logs.length > 0 ? logs[logs.length - 1].weightKg : (loadedMembers.find(m => m.id === activeId)?.startingWeightKg || 75);
       setSingleWeightKg(initialWt);
       setSingleWeightStr(initialWt.toFixed(1));
+      setSingleNote("");
+      setSingleMood(undefined);
     }
 
     // Initialize bulk entries
@@ -113,6 +120,8 @@ export function LogWeightModal({
     const lastWt = logs.length > 0 ? logs[logs.length - 1].weightKg : (mem?.startingWeightKg || 75);
     setSingleWeightKg(lastWt);
     setSingleWeightStr(lastWt.toFixed(1));
+    setSingleNote("");
+    setSingleMood(undefined);
   };
 
   const handleAdjustSingleWeight = (deltaKg: number) => {
@@ -148,6 +157,7 @@ export function LogWeightModal({
       date,
       weightKg: Math.round(singleWeightKg * 10) / 10,
       note: singleNote.trim() || undefined,
+      mood: singleMood,
     });
 
     triggerConfetti();
@@ -583,6 +593,75 @@ export function LogWeightModal({
                 onChange={(e) => setDate(e.target.value)}
                 className="w-full h-10 px-3 rounded-xl bg-carbon-950 border border-white/[0.08] text-white text-xs focus:outline-none focus:border-volt-400"
               />
+            </div>
+
+            {/* Session Energy / Mood Vector Selector */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-medium text-slate-400 flex items-center gap-1.5">
+                  <Lightning size={13} className="text-volt-400" />
+                  <span>Session Disposition (Optional)</span>
+                </span>
+                {singleMood && (
+                  <button
+                    type="button"
+                    onClick={() => setSingleMood(undefined)}
+                    className="text-[10px] text-slate-500 hover:text-slate-300"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+              <div className="grid grid-cols-4 gap-1.5 text-xs font-mono">
+                <button
+                  type="button"
+                  onClick={() => setSingleMood(singleMood === "great" ? undefined : "great")}
+                  className={`py-2 px-1.5 rounded-xl border flex flex-col items-center gap-1 transition-all ${
+                    singleMood === "great"
+                      ? "bg-amber-500/20 border-amber-500/60 text-amber-300 font-bold shadow-sm"
+                      : "bg-carbon-950 border-white/[0.08] text-slate-400 hover:text-slate-200 hover:bg-carbon-850"
+                  }`}
+                >
+                  <Fire size={16} weight={singleMood === "great" ? "fill" : "regular"} className={singleMood === "great" ? "text-amber-400" : ""} />
+                  <span className="text-[10px]">Great</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSingleMood(singleMood === "good" ? undefined : "good")}
+                  className={`py-2 px-1.5 rounded-xl border flex flex-col items-center gap-1 transition-all ${
+                    singleMood === "good"
+                      ? "bg-volt-500/20 border-volt-500/60 text-volt-300 font-bold shadow-sm"
+                      : "bg-carbon-950 border-white/[0.08] text-slate-400 hover:text-slate-200 hover:bg-carbon-850"
+                  }`}
+                >
+                  <Lightning size={16} weight={singleMood === "good" ? "fill" : "regular"} className={singleMood === "good" ? "text-volt-400" : ""} />
+                  <span className="text-[10px]">Good</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSingleMood(singleMood === "steady" ? undefined : "steady")}
+                  className={`py-2 px-1.5 rounded-xl border flex flex-col items-center gap-1 transition-all ${
+                    singleMood === "steady"
+                      ? "bg-emerald-500/20 border-emerald-500/60 text-emerald-300 font-bold shadow-sm"
+                      : "bg-carbon-950 border-white/[0.08] text-slate-400 hover:text-slate-200 hover:bg-carbon-850"
+                  }`}
+                >
+                  <Scales size={16} weight={singleMood === "steady" ? "bold" : "regular"} className={singleMood === "steady" ? "text-emerald-400" : ""} />
+                  <span className="text-[10px]">Steady</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSingleMood(singleMood === "tough" ? undefined : "tough")}
+                  className={`py-2 px-1.5 rounded-xl border flex flex-col items-center gap-1 transition-all ${
+                    singleMood === "tough"
+                      ? "bg-rose-500/20 border-rose-500/60 text-rose-300 font-bold shadow-sm"
+                      : "bg-carbon-950 border-white/[0.08] text-slate-400 hover:text-slate-200 hover:bg-carbon-850"
+                  }`}
+                >
+                  <Barbell size={16} weight={singleMood === "tough" ? "bold" : "regular"} className={singleMood === "tough" ? "text-rose-400" : ""} />
+                  <span className="text-[10px]">Tough</span>
+                </button>
+              </div>
             </div>
 
             {/* Note Input */}

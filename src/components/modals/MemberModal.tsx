@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, UserPlus, CheckCircle, Trash, Heartbeat, Sparkle, ArrowCounterClockwise } from "@phosphor-icons/react";
+import { X, UserPlus, CheckCircle, Trash, Heartbeat, Sparkle, ArrowCounterClockwise, Fire, Barbell, Scales } from "@phosphor-icons/react";
+import { GoalIcon } from "@/components/ui/GoalIcon";
 import { Member, GoalType } from "@/types";
 import { saveMember, deleteMember } from "@/lib/storage";
 import {
@@ -257,11 +258,12 @@ export function MemberModal({
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Program Directive</label>
-              <span className="text-[10px] text-slate-400 font-mono">
-                Active:{" "}
-                <strong className="text-volt-400 capitalize">
-                  {detectedGoal === "cutting" ? "🔥 Cut" : detectedGoal === "bulking" ? "⚡ Bulk" : "⚖️ Maintain"}
-                </strong>
+              <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
+                <span>Active:</span>
+                <span className="text-volt-400 capitalize inline-flex items-center gap-1 font-bold">
+                  <GoalIcon goalType={detectedGoal} size={11} />
+                  <span>{detectedGoal === "cutting" ? "Cut" : detectedGoal === "bulking" ? "Bulk" : "Maintain"}</span>
+                </span>
               </span>
             </div>
             <div className="grid grid-cols-4 gap-1 p-1 rounded-xl plate-recessed border border-carbon-700/60 text-xs">
@@ -285,7 +287,7 @@ export function MemberModal({
                     : "text-slate-400 hover:text-white"
                 }`}
               >
-                <span>🔥</span>
+                <Fire size={13} weight="fill" />
                 <span>Cut</span>
               </button>
               <button
@@ -297,7 +299,7 @@ export function MemberModal({
                     : "text-slate-400 hover:text-white"
                 }`}
               >
-                <span>⚡</span>
+                <Barbell size={13} weight="bold" />
                 <span>Bulk</span>
               </button>
               <button
@@ -309,7 +311,7 @@ export function MemberModal({
                     : "text-slate-400 hover:text-white"
                 }`}
               >
-                <span>⚖️</span>
+                <Scales size={13} weight="bold" />
                 <span>Maint</span>
               </button>
             </div>
@@ -381,7 +383,10 @@ export function MemberModal({
                   <span>Reset to auto</span>
                 </button>
               ) : (
-                <span className="text-[10px] text-emerald-400 font-mono font-semibold">✨ Auto-updating</span>
+                <span className="text-[10px] text-emerald-400 font-mono font-semibold inline-flex items-center gap-1">
+                  <Sparkle size={11} weight="fill" />
+                  <span>Auto-updating</span>
+                </span>
               )}
             </div>
 

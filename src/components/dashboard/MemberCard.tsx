@@ -5,6 +5,7 @@ import Link from "next/link";
 import { MemberInsight, UnitPreference } from "@/types";
 import { formatWeight, getBmiCategoryDetails, getGoalTypeDetails } from "@/lib/biometrics";
 import { Plus, CaretRight, Fire, Sparkle } from "@phosphor-icons/react";
+import { GoalBadge } from "@/components/ui/GoalIcon";
 
 interface MemberCardProps {
   insight: MemberInsight;
@@ -54,11 +55,8 @@ export function MemberCard({ insight, unit, onQuickLog }: MemberCardProps) {
                 {member.name}
               </h3>
 
-              {/* Goal Tag Badge */}
-              <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded border flex items-center gap-0.5 ${goalDetails.badgeBg} ${goalDetails.badgeText}`}>
-                <span>{goalDetails.icon}</span>
-                <span>{goalDetails.label}</span>
-              </span>
+              {/* Goal Tag Badge with Vector Icon */}
+              <GoalBadge goalType={goalType} size="xs" />
 
               {streakWeeks >= 2 && (
                 <span className="flex items-center gap-0.5 text-[10px] font-mono font-bold text-volt-400 px-1.5 py-0.2 rounded bg-volt-500/10 border border-volt-500/25">

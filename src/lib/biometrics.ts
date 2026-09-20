@@ -113,7 +113,7 @@ export function getGoalTypeDetails(goalType: GoalType): {
   badgeBg: string;
   badgeText: string;
   color: string;
-  icon: string;
+  iconName: "fire" | "barbell" | "scales";
   description: string;
 } {
   switch (goalType) {
@@ -124,7 +124,7 @@ export function getGoalTypeDetails(goalType: GoalType): {
         badgeBg: "bg-rose-500/15 border-rose-500/30",
         badgeText: "text-rose-400",
         color: "#F43F5E",
-        icon: "🔥",
+        iconName: "fire",
         description: "Focusing on fat loss & caloric deficit",
       };
     case "bulking":
@@ -134,7 +134,7 @@ export function getGoalTypeDetails(goalType: GoalType): {
         badgeBg: "bg-indigo-500/15 border-indigo-500/30",
         badgeText: "text-indigo-400",
         color: "#6366F1",
-        icon: "💪",
+        iconName: "barbell",
         description: "Focusing on lean mass gain & caloric surplus",
       };
     case "maintaining":
@@ -144,7 +144,7 @@ export function getGoalTypeDetails(goalType: GoalType): {
         badgeBg: "bg-emerald-500/15 border-emerald-500/30",
         badgeText: "text-emerald-400",
         color: "#10B981",
-        icon: "⚖️",
+        iconName: "scales",
         description: "Focusing on healthy weight maintenance & recomp",
       };
   }

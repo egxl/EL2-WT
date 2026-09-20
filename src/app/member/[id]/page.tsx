@@ -15,7 +15,8 @@ import { getMemberById, getMemberWeightLogs, getUnitPreference, deleteWeightLog,
 import { calculateMemberInsight, formatWeight, calculateBmi, getGoalTypeDetails } from "@/lib/biometrics";
 import { isMaintainerUnlocked, subscribeToAuthChanges } from "@/lib/auth";
 import { Member, WeightLog, UnitPreference } from "@/types";
-import { CaretLeft, Plus, PencilSimple, Trash, Fire, CalendarBlank, Target, Sparkle } from "@phosphor-icons/react";
+import { CaretLeft, Plus, PencilSimple, Trash, Fire, CalendarBlank, Target, Sparkle, Lightning, Barbell, Scales } from "@phosphor-icons/react";
+import { GoalBadge } from "@/components/ui/GoalIcon";
 
 export default function MemberDetailPage() {
   const params = useParams();
@@ -157,16 +158,8 @@ export default function MemberDetailPage() {
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-lg font-black text-white font-sans truncate">{member.name}</h1>
                 
-                {/* Goal Badge */}
-                {(() => {
-                  const goalDetails = getGoalTypeDetails(insight.goalType);
-                  return (
-                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded border flex items-center gap-0.5 ${goalDetails.badgeBg} ${goalDetails.badgeText}`}>
-                      <span>{goalDetails.icon}</span>
-                      <span>{goalDetails.label}</span>
-                    </span>
-                  );
-                })()}
+                {/* Goal Badge with Vector Icon */}
+                <GoalBadge goalType={insight.goalType} size="xs" />
 
                 {insight.streakWeeks >= 2 && (
                   <span className="flex items-center gap-0.5 text-[10px] font-mono font-bold text-volt-400 px-1.5 py-0.2 rounded bg-volt-500/10 border border-volt-500/25">
@@ -280,11 +273,11 @@ export default function MemberDetailPage() {
                         </span>
                       )}
                       {log.mood && (
-                        <span className="text-xs">
-                          {log.mood === "great" && "🔥"}
-                          {log.mood === "good" && "⚡"}
-                          {log.mood === "steady" && "🧘"}
-                          {log.mood === "tough" && "💪"}
+                        <span className="inline-flex items-center" title={`Mood: ${log.mood}`}>
+                          {log.mood === "great" && <Fire size={13} weight="fill" className="text-amber-400" />}
+                          {log.mood === "good" && <Lightning size={13} weight="fill" className="text-volt-400" />}
+                          {log.mood === "steady" && <Scales size={13} weight="bold" className="text-emerald-400" />}
+                          {log.mood === "tough" && <Barbell size={13} weight="bold" className="text-rose-400" />}
                         </span>
                       )}
                     </div>

@@ -10,7 +10,7 @@ import { getUnitPreference, setUnitPreference, exportData, importData, importDat
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { pullFromCloud, pushLocalToCloud } from "@/lib/supabase-sync";
 import { UnitPreference } from "@/types";
-import { Gear, LockSimple, LockSimpleOpen, DownloadSimple, UploadSimple, ArrowsCounterClockwise, Key, DeviceMobileCamera, CheckCircle, Warning, ShieldCheck, ShieldWarning, CloudCheck, CloudWarning, CloudArrowUp, CloudArrowDown } from "@phosphor-icons/react";
+import { Gear, LockSimple, LockSimpleOpen, DownloadSimple, UploadSimple, ArrowsCounterClockwise, Key, DeviceMobileCamera, CheckCircle, Warning, ShieldCheck, ShieldWarning, CloudCheck, CloudWarning, CloudArrowUp, CloudArrowDown, Lightbulb } from "@phosphor-icons/react";
 
 export default function SettingsPage() {
   const [unlocked, setUnlocked] = useState(false);
@@ -395,8 +395,11 @@ export default function SettingsPage() {
             </form>
 
             <div className="pt-2 border-t border-carbon-700/50 text-[11px] text-slate-500 space-y-1">
-              <p>
-                💡 <strong>Production Note</strong>: For multi-device deployments on Vercel, set <code className="text-volt-400/90 font-mono">NEXT_PUBLIC_COHORT_PASSWORD</code> in your Vercel Project Settings. Redeploying or changing it there instantly invalidates all members&apos; sessions across all phones.
+              <p className="flex items-start gap-1.5">
+                <Lightbulb size={13} weight="fill" className="text-volt-400 shrink-0 mt-0.5" />
+                <span>
+                  <strong>Production Note</strong>: For multi-device deployments on Vercel, set <code className="text-volt-400/90 font-mono">NEXT_PUBLIC_COHORT_PASSWORD</code> in your Vercel Project Settings. Redeploying or changing it there instantly invalidates all members&apos; sessions across all phones.
+                </span>
               </p>
             </div>
           </div>

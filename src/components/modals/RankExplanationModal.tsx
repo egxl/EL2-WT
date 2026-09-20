@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { X, Trophy, Target, Heartbeat, Fire, Sparkle, ShieldCheck, CheckCircle } from "@phosphor-icons/react";
+import { X, Trophy, Target, Heartbeat, Fire, Sparkle, ShieldCheck, CheckCircle, Barbell, Scales, Plant } from "@phosphor-icons/react";
 
 interface RankExplanationModalProps {
   isOpen: boolean;
@@ -61,7 +61,7 @@ export function RankExplanationModal({ isOpen, onClose }: RankExplanationModalPr
             <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 space-y-1">
               <div className="flex items-center justify-between font-bold text-rose-300">
                 <span className="flex items-center gap-1.5">
-                  <span>🔥</span>
+                  <Fire size={14} weight="fill" className="text-rose-400 shrink-0" />
                   <span>Cutting (Deficit & Fat Reduction)</span>
                 </span>
                 <span className="text-[10px] font-mono text-rose-300/80">Target &lt; Baseline</span>
@@ -75,7 +75,7 @@ export function RankExplanationModal({ isOpen, onClose }: RankExplanationModalPr
             <div className="p-3 rounded-xl bg-cobalt-500/10 border border-cobalt-500/20 space-y-1">
               <div className="flex items-center justify-between font-bold text-cobalt-300">
                 <span className="flex items-center gap-1.5">
-                  <span>⚡</span>
+                  <Barbell size={14} weight="bold" className="text-cobalt-400 shrink-0" />
                   <span>Bulking (Hypertrophy Surplus)</span>
                 </span>
                 <span className="text-[10px] font-mono text-cobalt-300/80">Target &gt; Baseline</span>
@@ -89,7 +89,7 @@ export function RankExplanationModal({ isOpen, onClose }: RankExplanationModalPr
             <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 space-y-1">
               <div className="flex items-center justify-between font-bold text-emerald-300">
                 <span className="flex items-center gap-1.5">
-                  <span>⚖️</span>
+                  <Scales size={14} weight="bold" className="text-emerald-400 shrink-0" />
                   <span>Maintaining (Recomposition & Peak Stability)</span>
                 </span>
                 <span className="text-[10px] font-mono text-emerald-300/80">Target ≈ Baseline</span>
@@ -112,7 +112,7 @@ export function RankExplanationModal({ isOpen, onClose }: RankExplanationModalPr
             <div className="p-3.5 rounded-xl plate-recessed border border-volt-400/30 space-y-2">
               <div className="flex items-center gap-1.5 font-bold text-volt-400">
                 <Sparkle size={15} weight="fill" />
-                <span>⭐ Overall Index (Elemen 2 Composite Score)</span>
+                <span>Overall Index (Elemen 2 Composite Score)</span>
               </div>
               <p className="text-[11px] text-slate-300 leading-relaxed">
                 A 0–100 comprehensive athletic rating calculated from three weighted pillars:
@@ -137,7 +137,7 @@ export function RankExplanationModal({ isOpen, onClose }: RankExplanationModalPr
             <div className="p-3 rounded-xl plate-recessed border border-carbon-700/60 space-y-1">
               <div className="flex items-center gap-1.5 font-bold text-white">
                 <Target size={15} className="text-emerald-400" weight="fill" />
-                <span>🎯 Target Goal Proximity</span>
+                <span>Target Goal Proximity</span>
               </div>
               <p className="text-[11px] text-slate-300">
                 Ranked purely by remaining kilograms to individual target threshold (<code>|current - target|</code>), followed by percentage of program completed.
@@ -148,7 +148,7 @@ export function RankExplanationModal({ isOpen, onClose }: RankExplanationModalPr
             <div className="p-3 rounded-xl plate-recessed border border-carbon-700/60 space-y-1">
               <div className="flex items-center gap-1.5 font-bold text-white">
                 <Heartbeat size={15} className="text-cobalt-400" weight="fill" />
-                <span>🌱 Biomechanical Index (WHO BMI 22.0 Proximity)</span>
+                <span>Biomechanical Index (WHO BMI 22.0 Proximity)</span>
               </div>
               <p className="text-[11px] text-slate-300">
                 Ranked by distance to optimal anthropometric body mass:
@@ -165,7 +165,7 @@ export function RankExplanationModal({ isOpen, onClose }: RankExplanationModalPr
             <div className="p-3 rounded-xl plate-recessed border border-carbon-700/60 space-y-1">
               <div className="flex items-center gap-1.5 font-bold text-white">
                 <Fire size={15} className="text-volt-400" weight="fill" />
-                <span>🔥 Consistency Streak (Cadence & Discipline)</span>
+                <span>Consistency Streak (Cadence & Discipline)</span>
               </div>
               <p className="text-[11px] text-slate-300">
                 Ranked by consecutive weekly weigh-in entries. Honors accountability and discipline over short-term volatility.

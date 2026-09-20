@@ -19,8 +19,12 @@ import {
   Funnel,
   Info,
   Question,
+  Barbell,
+  Scales,
+  Plant,
 } from "@phosphor-icons/react";
 import { RankExplanationModal } from "@/components/modals/RankExplanationModal";
+import { GoalBadge } from "@/components/ui/GoalIcon";
 
 type SortTab = "overall" | "target" | "ideal" | "streak";
 type CategoryFilter = "all" | GoalType;
@@ -208,37 +212,37 @@ export default function LeaderboardPage() {
 
           <button
             onClick={() => setCategoryFilter("cutting")}
-            className={`px-2.5 py-1.5 rounded-lg border text-[11px] font-semibold shrink-0 transition-all flex items-center gap-1 ${
+            className={`px-2.5 py-1.5 rounded-lg border text-[11px] font-semibold shrink-0 transition-all flex items-center gap-1.5 ${
               categoryFilter === "cutting"
                 ? "bg-rose-500/20 border-rose-500/40 text-rose-300 font-bold"
                 : "bg-carbon-850 border-white/[0.06] text-slate-400 hover:bg-carbon-800"
             }`}
           >
-            <span>🔥</span>
+            <Fire size={12} weight="fill" className={categoryFilter === "cutting" ? "text-rose-400" : "text-slate-400"} />
             <span>Cut ({allInsights.filter((i) => i.goalType === "cutting").length})</span>
           </button>
 
           <button
             onClick={() => setCategoryFilter("bulking")}
-            className={`px-2.5 py-1.5 rounded-lg border text-[11px] font-semibold shrink-0 transition-all flex items-center gap-1 ${
+            className={`px-2.5 py-1.5 rounded-lg border text-[11px] font-semibold shrink-0 transition-all flex items-center gap-1.5 ${
               categoryFilter === "bulking"
                 ? "bg-cobalt-500/20 border-cobalt-500/40 text-cobalt-300 font-bold"
                 : "bg-carbon-850 border-white/[0.06] text-slate-400 hover:bg-carbon-800"
             }`}
           >
-            <span>⚡</span>
+            <Barbell size={12} weight="bold" className={categoryFilter === "bulking" ? "text-cobalt-400" : "text-slate-400"} />
             <span>Bulk ({allInsights.filter((i) => i.goalType === "bulking").length})</span>
           </button>
 
           <button
             onClick={() => setCategoryFilter("maintaining")}
-            className={`px-2.5 py-1.5 rounded-lg border text-[11px] font-semibold shrink-0 transition-all flex items-center gap-1 ${
+            className={`px-2.5 py-1.5 rounded-lg border text-[11px] font-semibold shrink-0 transition-all flex items-center gap-1.5 ${
               categoryFilter === "maintaining"
                 ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300 font-bold"
                 : "bg-carbon-850 border-white/[0.06] text-slate-400 hover:bg-carbon-800"
             }`}
           >
-            <span>⚖️</span>
+            <Scales size={12} weight="bold" className={categoryFilter === "maintaining" ? "text-emerald-400" : "text-slate-400"} />
             <span>Maintain ({allInsights.filter((i) => i.goalType === "maintaining").length})</span>
           </button>
         </div>
@@ -246,18 +250,39 @@ export default function LeaderboardPage() {
         {/* Dynamic Context Banner */}
         <div className="px-3 py-1.5 rounded-lg bg-carbon-900 border border-white/[0.06] flex items-center justify-between text-[10px] font-mono text-slate-400">
           <span className="flex items-center gap-1.5">
-            {activeTab === "overall" && <span>⭐ <strong>Elemen 2 Index</strong>: 45% Goal + 35% Ideal BMI + 20% Streak</span>}
-            {activeTab === "target" && <span>🎯 Ranked by closest distance to personal desired goal</span>}
-            {activeTab === "ideal" && <span>🌱 Ranked by closest weight to height-calibrated BMI 22.0</span>}
-            {activeTab === "streak" && <span>🔥 Ranked by weekly weigh-in consistency & habit streak</span>}
+            {activeTab === "overall" && (
+              <>
+                <Sparkle size={13} weight="fill" className="text-volt-400 shrink-0" />
+                <span><strong>Elemen 2 Index</strong>: 45% Goal + 35% Ideal BMI + 20% Streak</span>
+              </>
+            )}
+            {activeTab === "target" && (
+              <>
+                <Target size={13} weight="fill" className="text-emerald-400 shrink-0" />
+                <span>Ranked by closest distance to personal desired goal</span>
+              </>
+            )}
+            {activeTab === "ideal" && (
+              <>
+                <Plant size={13} weight="fill" className="text-cobalt-400 shrink-0" />
+                <span>Ranked by closest weight to height-calibrated BMI 22.0</span>
+              </>
+            )}
+            {activeTab === "streak" && (
+              <>
+                <Fire size={13} weight="fill" className="text-amber-400 shrink-0" />
+                <span>Ranked by weekly weigh-in consistency & habit streak</span>
+              </>
+            )}
           </span>
         </div>
 
         {/* Athletic Tiered Podium for Top 3 */}
         {ranked.length >= 3 && (
           <div className="plate-card p-4 space-y-3">
-            <span className="text-[10px] font-mono uppercase tracking-wider font-bold text-volt-400 block text-center">
-              🏆 Championship Podium ({categoryFilter === "all" ? "Cohort" : categoryFilter})
+            <span className="text-[10px] font-mono uppercase tracking-wider font-bold text-volt-400 flex items-center justify-center gap-1.5">
+              <Trophy size={14} weight="fill" className="text-volt-400 shrink-0" />
+              <span>Championship Podium ({categoryFilter === "all" ? "Cohort" : categoryFilter})</span>
             </span>
 
             {/* Pedestal Structure */}
@@ -390,10 +415,7 @@ export default function LeaderboardPage() {
                         </span>
 
                         {/* Goal Tag Pill */}
-                        <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded border flex items-center gap-0.5 ${goalDetails.badgeBg} ${goalDetails.badgeText}`}>
-                          <span>{goalDetails.icon}</span>
-                          <span>{goalDetails.label}</span>
-                        </span>
+                        <GoalBadge goalType={insight.goalType} size="xs" />
 
                         {insight.streakWeeks >= 2 && (
                           <span className="flex items-center gap-0.5 text-[9px] text-volt-400 font-bold">
@@ -498,7 +520,7 @@ export default function LeaderboardPage() {
             </button>
           </div>
           <p className="text-[10px] text-slate-400 leading-relaxed font-sans">
-            Elemen 2 tracks 3 distinct programs (<strong>🔥 Cutting</strong>, <strong>⚡ Bulking</strong>, and <strong>⚖️ Maintaining</strong>). The <strong>Overall Index (0–100)</strong> blends <strong>45% Goal Progress</strong>, <strong>35% WHO Ideal Weight Proximity (BMI 22.0)</strong>, and <strong>20% Weigh-In Streak</strong> so everyone competes on an equal, healthy playing field.
+            Elemen 2 tracks 3 distinct programs (<span className="inline-flex items-center gap-1 font-bold text-rose-300"><Fire size={11} weight="fill" className="text-rose-400" /> Cutting</span>, <span className="inline-flex items-center gap-1 font-bold text-cobalt-300"><Barbell size={11} weight="bold" className="text-cobalt-400" /> Bulking</span>, and <span className="inline-flex items-center gap-1 font-bold text-emerald-300"><Scales size={11} weight="bold" className="text-emerald-400" /> Maintaining</span>). The <strong>Overall Index (0–100)</strong> blends <strong>45% Goal Progress</strong>, <strong>35% WHO Ideal Weight Proximity (BMI 22.0)</strong>, and <strong>20% Weigh-In Streak</strong> so everyone competes on an equal, healthy playing field.
           </p>
         </div>
       </div>
